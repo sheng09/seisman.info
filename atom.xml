@@ -1,0 +1,1451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>SeisMan</title>
+  <subtitle>学会整理自己的经验是科研的第一步。</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://seisman.info/"/>
+  <updated>2016-05-31T05:13:57.605Z</updated>
+  <id>http://seisman.info/</id>
+  
+  <author>
+    <name>SeisMan</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>IRIS 的理论地震图生成引擎</title>
+    <link href="http://seisman.info/iris-syngine.html"/>
+    <id>http://seisman.info/iris-syngine.html</id>
+    <published>2016-05-26T04:41:18.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;通过看理论地震图有助于我们理解实际数据中的很多现象，但自己算理论地震图却不是 一个简单的事情，既需要有相关代码还需要理解理论地震图计算的原理，还需要足够的 计算机资源以及计算时间。&lt;/p&gt;
+&lt;p&gt;IRIS 的 Syngine 服务使用 &lt;a href=&quot;http://seis.earth.ox.ac.uk/axisem/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;AxiSEM&lt;/a&gt; 计算得到 格林函数，并使用 &lt;a href=&quot;http://www.instaseis.net/index.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Instaseis&lt;/a&gt; 得到理论地震图。 该服务提供了 PREM、AK135、iasp91 等多个模型下高达 1 Hz 的理论地震图，用户可直接 下载使用，省去了自己计算的麻烦。&lt;/p&gt;
+&lt;p&gt;下面列出相关网页：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;项目主页： &lt;a href=&quot;http://ds.iris.edu/ds/products/syngine/&quot; class=&quot;uri&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://ds.iris.edu/ds/products/syngine/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;网页版下载工具： &lt;a href=&quot;https://service.iris.edu/irisws/syngine/1&quot; class=&quot;uri&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://service.iris.edu/irisws/syngine/1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;命令行下载工具： &lt;a href=&quot;https://seiscode.iris.washington.edu/projects/ws-fetch-scripts/wiki/FetchSyn_usage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FetchSyn&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;用 ObsPy 下载理论地震图： &lt;a href=&quot;http://nbviewer.jupyter.org/gist/krischer/3e655576e4d17e6c95f2&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Using Syngine with ObsPy&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;通过看理论地震图有助于我们理解实际数据中的很多现象，但自己算理论地震图却不是 一个简单的事情，既需要有相关代码还需要理解理论地震图计算的原理，还需要足够的 计算机资源以及计算时间。&lt;/p&gt;
+&lt;p&gt;IRIS 的 Syngine 服务使用 &lt;a href=&quot;http://sei
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="IRIS" scheme="http://seisman.info/tags/IRIS/"/>
+    
+      <category term="理论地震图" scheme="http://seisman.info/tags/%E7%90%86%E8%AE%BA%E5%9C%B0%E9%9C%87%E5%9B%BE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>识别 TauP 输出中的多个 P 震相</title>
+    <link href="http://seisman.info/taup-identify-multiple-P-phases.html"/>
+    <id>http://seisman.info/taup-identify-multiple-P-phases.html</id>
+    <published>2016-05-22T03:46:41.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;在使用 TauP 计算 &lt;strong&gt;浅源近震&lt;/strong&gt; 的 P 波走时时，输出中经常会出现很多个 P 震相。这个事情让人很困扰， 因为搞不清这些 P 震相到底谁是谁。如果需要的只是 P 波初至，那就无所谓了，直接用最早的到时即可。 有些时候需要计算某个特定 P 震相的走时，这就需要清楚地了解每个 P 震相所代表的真正路径了。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;以最简单也最常用的 PREM 模型为例， TauP 中给出了 PREM 模型的前几列如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ head -10 prem.nd
+    0.00     5.80000   3.20000   2.60000    1456.0     600.0
+   15.00     5.80000   3.20000   2.60000    1456.0     600.0
+   15.00     6.80000   3.90000   2.90000    1350.0     600.0
+   24.40     6.80000   3.90000   2.90000    1350.0     600.0
+mantle
+   24.40     8.11061   4.49094   3.38076    1446.0     600.0
+   40.00     8.10119   4.48486   3.37906    1446.0     600.0
+   60.00     8.08907   4.47715   3.37688    1447.0     600.0
+   80.00     8.07688   4.46953   3.37471     195.0      80.0
+  115.00     8.05540   4.45643   3.37091     195.0      80.0&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;可以看到，15 km 处是上下地壳的分界面，24.4 km 是 Moho 面。&lt;/p&gt;
+&lt;p&gt;那么，对于一个深度为 5 km 的震源来说，在小震中距时可能会有 5 个 P 波震相：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;震相 1： 从源出发向上传播直接到台站&lt;/li&gt;
+&lt;li&gt;震相 2：15 km 界面的反射波&lt;/li&gt;
+&lt;li&gt;震相 3：15 km 界面处的首波&lt;/li&gt;
+&lt;li&gt;震相 4：Moho 面的反射波&lt;/li&gt;
+&lt;li&gt;震相 5：Moho 面的首波&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下面的命令计算了震源深度 5 km，震中距 100 km 处的 P 波震相走时。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ taup_time -mod prem -h 5 -km 100 -ph p,P
+
+Model: prem
+Distance   Depth   Phase   Travel    Ray Param  Takeoff  Incident  Purist    Purist
+  (deg)     (km)   Name    Time (s)  p (s/deg)   (deg)    (deg)   Distance   Name
+-----------------------------------------------------------------------------------
+    0.90     5.0   P         16.81    13.657     45.47    45.43     0.90   = P
+    0.90     5.0   P         16.93    16.313     58.38    58.31     0.90   = P
+    0.90     5.0   p         17.26    19.135    -87.30    86.48     0.90   = p
+    0.90     5.0   P         17.33    15.646     54.76    54.70     0.90   = P
+    0.90     5.0   P         17.75    18.571     75.80    75.62     0.90   = P&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;输出的 5 个 P 震相与之前的预期相同，很明显输出的第三行对应震相 1，也就是 p 震相。&lt;/p&gt;
+&lt;p&gt;那么如何确定其他震相的身份呢？当然可以通过射线参数、出射角等信息判断，但是如上面的输出所示，其实 很困难。最好的解决办法是，利用 TauP 强大的震相命名功能来指定计算特定震相的到时。例如， &lt;code&gt;Pn&lt;/code&gt; 代表 Moho 面的首波， &lt;code&gt;Pv15P&lt;/code&gt; 代表 15 km 界面的反射波， &lt;code&gt;PvmP&lt;/code&gt; 代表 Moho 界面反射波。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ taup_time -mod prem -h 5 -km 100 -ph p,P,Pn,Pg,Pv15P,PvmP,Pv24.4P
+
+Model: prem
+Distance   Depth   Phase     Travel    Ray Param  Takeoff  Incident  Purist    Purist
+  (deg)     (km)   Name      Time (s)  p (s/deg)   (deg)    (deg)   Distance   Name
+-------------------------------------------------------------------------------------
+    0.90     5.0   P           16.81    13.657     45.47    45.43     0.90   = P
+    0.90     5.0   Pn          16.81    13.657     45.47    45.43     0.90   = Pn
+    0.90     5.0   P           16.93    16.313     58.38    58.31     0.90   = P
+    0.90     5.0   Pg          16.93    16.313     58.38    58.31     0.90   = Pg
+    0.90     5.0   p           17.26    19.135    -87.30    86.48     0.90   = p
+    0.90     5.0   P           17.33    15.646     54.76    54.70     0.90   = P
+    0.90     5.0   PvmP        17.33    15.646     54.76    54.70     0.90   * Pv24.4P
+    0.90     5.0   Pv24.4P     17.33    15.646     54.76    54.70     0.90   = Pv24.4P
+    0.90     5.0   P           17.75    18.571     75.80    75.62     0.90   = P
+    0.90     5.0   Pg          17.75    18.571     75.80    75.62     0.90   = Pg
+    0.90     5.0   Pv15P       17.75    18.571     75.80    75.62     0.90   = Pv15P&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;从这个命令的输出中可以提取出很多信息：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;第 1 行和第 2 行是同一个震相，即 Pn，也就是 Moho 界面的首波。同时也说明，震相名 P 包括了反射波、首波等&lt;/li&gt;
+&lt;li&gt;第 3 行与第 4 行是同一个震相，即 Pg，也就是地壳内 turning 的波&lt;/li&gt;
+&lt;li&gt;第 5 行是上行波 p，这个很明显了&lt;/li&gt;
+&lt;li&gt;第 6-8 行是同一个震相，是 Moho 界面的反射波，这个震相可以用 P、PvmP 或 Pv24.4P&lt;/li&gt;
+&lt;li&gt;第 9-11 行是同一个震相，是 15 km 界面的反射波&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;5 个震相中有四个的路径已经很确定了，唯一不确定的就是第 3-4 行这个震相。其实跟前面的理论与其对比一下 可以猜出来，这个震相应该是 15 km 界面的首波。那么如何证明呢？方法很简单，把 PREM 模型中 Moho 界面 的深度改到 15 km，此时计算出的 Pn 就是 15 km 界面的首波了。&lt;/p&gt;
+&lt;p&gt;修改后的 &lt;code&gt;prem2.nd&lt;/code&gt; 的前几行内容如下（其实只是修改了 &lt;code&gt;mantle&lt;/code&gt; 这一行的位置）：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ head -10 prem.nd
+    0.00     5.80000   3.20000   2.60000    1456.0     600.0
+   15.00     5.80000   3.20000   2.60000    1456.0     600.0
+mantle
+   15.00     6.80000   3.90000   2.90000    1350.0     600.0
+   24.40     6.80000   3.90000   2.90000    1350.0     600.0
+   24.40     8.11061   4.49094   3.38076    1446.0     600.0
+   40.00     8.10119   4.48486   3.37906    1446.0     600.0
+   60.00     8.08907   4.47715   3.37688    1447.0     600.0
+   80.00     8.07688   4.46953   3.37471     195.0      80.0
+  115.00     8.05540   4.45643   3.37091     195.0      80.0&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;执行相同的命令，可以看到&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ taup_time -mod prem2 -h 5 -km 100 -ph p,P,Pn,Pg,Pv15P,PvmP,Pv24.4P
+
+Model: prem2
+Distance   Depth   Phase     Travel    Ray Param  Takeoff  Incident  Purist    Purist
+  (deg)     (km)   Name      Time (s)  p (s/deg)   (deg)    (deg)   Distance   Name
+-------------------------------------------------------------------------------------
+    0.90     5.0   P           16.81    13.657     45.47    45.43     0.90   = P
+    0.90     5.0   P           16.93    16.313     58.38    58.31     0.90   = P
+    0.90     5.0   Pn          16.93    16.314     58.39    58.31     0.90   = Pn
+    0.90     5.0   p           17.26    19.135    -87.30    86.48     0.90   = p
+    0.90     5.0   P           17.33    15.646     54.76    54.70     0.90   = P
+    0.90     5.0   Pv24.4P     17.33    15.646     54.76    54.70     0.90   = Pv24.4P
+    0.90     5.0   P           17.75    18.571     75.80    75.62     0.90   = P
+    0.90     5.0   Pv15P       17.75    18.571     75.80    75.62     0.90   = Pv15P
+    0.90     5.0   PvmP        17.75    18.571     75.80    75.62     0.90   * Pv15P&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;新模型下 Moho 界面在 15 km 处，所以此时 PvmP 是 15 km 的反射波，而 Pn 则是 15 km 的首波。&lt;/p&gt;
+&lt;p&gt;至此，所有的 5 个 P 震相都被正确识别出来啦。对于更复杂的速度模型，判断方法类似。&lt;/p&gt;
+&lt;p&gt;结合以上的分析，总结出来震相走时方面的几个需要注意的地方：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;首波在某些震中距会比反射波快（这在地震学基础中已经提到了）&lt;/li&gt;
+&lt;li&gt;浅部界面的反射波并不一定比深部界面的反射波更早到（此处 Pv15P 晚于 Pv24.4P）&lt;/li&gt;
+&lt;li&gt;除了 Pn 之外最早到的震相不一定就是直达波或反射波，也有可能是其他界面的首波（此处 15 km 界面的首波是除 Pn 外最早到的）&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在使用 TauP 计算 &lt;strong&gt;浅源近震&lt;/strong&gt; 的 P 波走时时，输出中经常会出现很多个 P 震相。这个事情让人很困扰， 因为搞不清这些 P 震相到底谁是谁。如果需要的只是 P 波初至，那就无所谓了，直接用最早的到时即可。 有些时候需要计算某个特定 P 震相的走时，这就需要清楚地了解每个 P 震相所代表的真正路径了。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="走时" scheme="http://seisman.info/tags/%E8%B5%B0%E6%97%B6/"/>
+    
+      <category term="TauP" scheme="http://seisman.info/tags/TauP/"/>
+    
+      <category term="震相" scheme="http://seisman.info/tags/%E9%9C%87%E7%9B%B8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>TauP 自定义模型</title>
+    <link href="http://seisman.info/taup-custom-models.html"/>
+    <id>http://seisman.info/taup-custom-models.html</id>
+    <published>2016-05-20T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;TauP 内置了常见的一维速度模型，比如 PREM、ak135、iasp91 等，这些标准速度模型 位于 TauP 软件包的 &lt;code&gt;StdModels&lt;/code&gt; 目录下。日常科研中，这些标准速度模型是不能满足 需求的，因而需要自定义速度模型。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;速度模型格式&quot;&gt;速度模型格式&lt;/h2&gt;
+&lt;p&gt;通常，自定义的模型都是在标准模型的基础上对少量改动。所以，要想自定义模型，先要了解 TauP 模型的格式。TauP 支持两种速度模型格式： &lt;code&gt;nd&lt;/code&gt; 和 &lt;code&gt;tvel&lt;/code&gt;。&lt;/p&gt;
+&lt;h3 id=&quot;tvel-格式&quot;&gt;tvel 格式&lt;/h3&gt;
+&lt;p&gt;以 ak135 模型为例，其前 10 行的内容如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ head -10 ak135.tvel
+ak135 - P
+ak135 - S
+     0.000      5.8000      3.4600     2.7200
+    20.000      5.8000      3.4600      2.7200
+    20.000      6.5000      3.8500      2.9200
+    35.000      6.5000      3.8500      2.9200
+    35.000      8.0400      4.4800      3.3198
+    77.500      8.0450      4.4900      3.3455
+   120.000      8.0500      4.5000      3.3713
+   165.000      8.1750      4.5090      3.3985&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其中前两行是注释行，会被自动忽略，但这两行是必须的。接下来每行给定一个深度处的参数值， 两个深度之间的参数通过线性插值得到。若某个深度处有两个不同的参数值，则该深度处是一个 速度界面，比如上面的几行中 20 和 35 都是速度界面，其余深度则不是。&lt;/p&gt;
+&lt;h3 id=&quot;nd-格式&quot;&gt;nd 格式&lt;/h3&gt;
+&lt;p&gt;以 PREM 模型为例，其前 10 行的内容如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ head -10 prem.nd
+    0.00     5.80000   3.20000   2.60000    1456.0     600.0
+   15.00     5.80000   3.20000   2.60000    1456.0     600.0
+   15.00     6.80000   3.90000   2.90000    1350.0     600.0
+   24.40     6.80000   3.90000   2.90000    1350.0     600.0
+mantle
+   24.40     8.11061   4.49094   3.38076    1446.0     600.0
+   40.00     8.10119   4.48486   3.37906    1446.0     600.0
+   60.00     8.08907   4.47715   3.37688    1447.0     600.0
+   80.00     8.07688   4.46953   3.37471     195.0      80.0
+  115.00     8.05540   4.45643   3.37091     195.0      80.0&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;与 tvel 格式类似，也是每行指定一个深度处的参数值。两个深度之间的参数通过线性插值得到。 若某个深度处有两个不同的参数值，则该深度处是一个速度界面。不同之处在于， nd 格式中没有 前两列注释行，且有专门的行来指定地球内部的重要界面：Moho、CMB 和 ICB。&lt;/p&gt;
+&lt;h2 id=&quot;微调模型&quot;&gt;微调模型&lt;/h2&gt;
+&lt;p&gt;假定要以 PREM 模型为基础来自定义模型。首先将标准 PREM 模型 &lt;code&gt;prem.nd&lt;/code&gt; 复制一份到 工作目录，并重命名为 &lt;code&gt;model1.nd&lt;/code&gt; 。直接执行如下命令就可以计算新模型下的震相走时。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ taup_time -mod model1 -ph p,P,Pn -h 5 -km 200
+
+Model: model1
+Distance   Depth   Phase   Travel    Ray Param  Takeoff  Incident  Purist    Purist
+  (deg)     (km)   Name    Time (s)  p (s/deg)   (deg)    (deg)   Distance   Name
+-----------------------------------------------------------------------------------
+    1.80     5.0   P         29.09    13.657     45.47    45.43     1.80   = P
+    1.80     5.0   Pn        29.09    13.657     45.47    45.43     1.80   = Pn
+    1.80     5.0   P         31.60    16.312     58.38    58.30     1.80   = P
+    1.80     5.0   P         31.75    16.187     57.67    57.60     1.80   = P
+    1.80     5.0   p         34.48    19.158      0.00    87.84     1.80   = p
+    1.80     5.0   P         34.73    18.961     81.80    81.50     1.80   = P&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;若 &lt;code&gt;-mod&lt;/code&gt; 后的参数没有以 &lt;code&gt;.nd&lt;/code&gt; 或 &lt;code&gt;.tvel&lt;/code&gt; 结尾，则命令会首先到标准模型中找，若找不到则到当前 目录下找。&lt;/p&gt;
+&lt;p&gt;若 &lt;code&gt;-mod&lt;/code&gt; 后的参数以 &lt;code&gt;.nd&lt;/code&gt; 或 &lt;code&gt;.tvel&lt;/code&gt; 结尾，则命令只会在当前目录下寻找模型文件。所以，在使用 自定义的模型时还是建议加上后缀比较好。&lt;/p&gt;
+&lt;p&gt;接下来就是修改模型了，基本上不乱改都不会出问题。&lt;/p&gt;
+&lt;h2 id=&quot;加速计算&quot;&gt;加速计算&lt;/h2&gt;
+&lt;p&gt;修改完模型后，TauP 中的所有命令就都可以使用这个模型了。如果你需要多次调用 TauP 来计算自定义模型 下的震相走时，你会发现，自定义的模型算走时总是比标准模型算的要慢。&lt;/p&gt;
+&lt;p&gt;出现这个现象是因为，TauP 已经针对每个标准模型计算了其对应的 tau 表。这个表的计算量很大，但只与模型 有关，与震中距、震源深度等都无关。因而先把这个表计算出来，则可以实现走时计算的加速。&lt;/p&gt;
+&lt;p&gt;计算表的方式也很简单： &lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ taup_create -nd model1.nd&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ taup_time -mod model1.taup -ph p,P,Pn -h 5 -km 200&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;taup_create&lt;/code&gt; 命令会生成一个后缀为 &lt;code&gt;.taup&lt;/code&gt; 的二进制文件，这个文件可以直接在命令中使用，如上面 的第二个命令所示。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;TauP 内置了常见的一维速度模型，比如 PREM、ak135、iasp91 等，这些标准速度模型 位于 TauP 软件包的 &lt;code&gt;StdModels&lt;/code&gt; 目录下。日常科研中，这些标准速度模型是不能满足 需求的，因而需要自定义速度模型。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="TauP" scheme="http://seisman.info/tags/TauP/"/>
+    
+      <category term="模型" scheme="http://seisman.info/tags/%E6%A8%A1%E5%9E%8B/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>征集令</title>
+    <link href="http://seisman.info/you-are-wanted.html"/>
+    <id>http://seisman.info/you-are-wanted.html</id>
+    <published>2016-04-12T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;维护者征集&quot;&gt;维护者征集&lt;/h2&gt;
+&lt;p&gt;下面列出了我发起的几个开源项目。挖了坑但是没有时间去填，所以需要征集志愿者参与维护。志愿者越多越好，项目开源的目的就是让所有人都可以参与到维护中来。&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/seisman/SAC_Docs_zh&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SAC 参考手册&lt;/a&gt; 日常维护&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gmt-china/gmt-china.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT 中文社区主页&lt;/a&gt; 日常维护，网页设计&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gmt-china/GMT_docs&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT 参考手册&lt;/a&gt; 日常维护&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gmt-china/GMT_modules&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT 模块手册&lt;/a&gt; 日常维护，模块用法整理&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gmt-china/GMT_examples&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT 示例集&lt;/a&gt; 日常维护，网页设计，示例投稿&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/gmt-china/gmt-easy-installer&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT 快速安装脚本&lt;/a&gt; 测试不同的平台&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/seisman/GMT5-pssac&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;pssac for GMT5&lt;/a&gt; 程序核心已完成，需要修复一些严重 BUG&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;博文征集&quot;&gt;博文征集&lt;/h2&gt;
+&lt;p&gt;有些东西值得写，但是跟我目前的科研方向关系不大，所以没有足够的时间和动力去写。这里将我想到的一些值得写的话题列举如下，有了解相关方向且感兴趣的读者，可以考虑写一份投稿到本博客。&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;矩震级的计算：如何根据矩张量计算矩震级（应该是有现成的公式的）&lt;/li&gt;
+&lt;li&gt;地球椭率校正：原理以及具体如何操作&lt;/li&gt;
+&lt;li&gt;中国地图：可信且能通过审查的中国边界&lt;/li&gt;
+&lt;li&gt;gcap：用法及其注意事项&lt;/li&gt;
+&lt;li&gt;yaseis：对 yaseis 的原理做简单介绍&lt;/li&gt;
+&lt;li&gt;yaseis 与 fk 之间波形的对比：yaseis 与 fk 原理类似，但很多东西的定义不同&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;除此之外，读者也可以在评论区写下自己觉得有意义的话题，我会酌情将其列在上面的列表中。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;维护者征集&quot;&gt;维护者征集&lt;/h2&gt;
+&lt;p&gt;下面列出了我发起的几个开源项目。挖了坑但是没有时间去填，所以需要征集志愿者参与维护。志愿者越多越好，项目开源的目的就是让所有人都可以参与到维护中来。&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: deci
+    
+    </summary>
+    
+      <category term="胡言乱语" scheme="http://seisman.info/categories/%E8%83%A1%E8%A8%80%E4%B9%B1%E8%AF%AD/"/>
+    
+    
+      <category term="博客" scheme="http://seisman.info/tags/%E5%8D%9A%E5%AE%A2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>用 psxy 绘制铁轨线</title>
+    <link href="http://seisman.info/plot-rail-tracks.html"/>
+    <id>http://seisman.info/plot-rail-tracks.html</id>
+    <published>2016-03-29T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;想要绘制黑白相间的铁轨线。既然是画线，肯定要用 &lt;code&gt;psxy&lt;/code&gt; 了，但是 &lt;code&gt;psxy&lt;/code&gt; 命令自身是不支持画这种黑白相间的线的，因而就需要使用一些技巧。具体技巧如下例：&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;R=0/10/0/5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;J=M10c&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PS=test.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psbasemap -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -B1 -K &amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# Start rail tracks&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy line.txt -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -K -O -W5p,black        &amp;gt;&amp;gt; test.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy line.txt -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -K -O -W4p,white,20_20: &amp;gt;&amp;gt; test.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# End rail tracks&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -T -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;简单说明一下原理，其实就是每条线画两遍。第一个 &lt;code&gt;psxy&lt;/code&gt; 命令绘制了一条宽度为 &lt;code&gt;5p&lt;/code&gt; 的黑线。第二个 &lt;code&gt;psxy&lt;/code&gt; 命令绘制了一条宽度为 &lt;code&gt;4p&lt;/code&gt; 的线，这条线的线型 &lt;code&gt;20_20:&lt;/code&gt; 表示线段先是长度为 &lt;code&gt;20p&lt;/code&gt; 的白线， 然后是长度为 &lt;code&gt;20p&lt;/code&gt; 的空白，线段的空白段由于是透明的，所以会把第一次画的黑色线段露出来。 最终就实现了铁轨线的效果。&lt;/p&gt;
+&lt;p&gt;绘图效果如下：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016033001.png&quot;&gt;
+
+&lt;/div&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;想要绘制黑白相间的铁轨线。既然是画线，肯定要用 &lt;code&gt;psxy&lt;/code&gt; 了，但是 &lt;code&gt;psxy&lt;/code&gt; 命令自身是不支持画这种黑白相间的线的，因而就需要使用一些技巧。具体技巧如下例：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="GMT技巧" scheme="http://seisman.info/tags/GMT%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>判断 SAC 数据是否已去除仪器响应</title>
+    <link href="http://seisman.info/instrumental-response-removed-or-not.html"/>
+    <id>http://seisman.info/instrumental-response-removed-or-not.html</id>
+    <published>2016-03-12T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;有些时候，波形数据拿到手了，但是却不知道波形数据是否有被处理过，尤其是有没有去除仪器响应。&lt;/p&gt;
+&lt;p&gt;先说结论，判断一个 SAC 数据是否已经去除仪器响应的准则是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;若一个 SAC 数据中每个数据点的值都是整数，则这个数据的仪器响应没有被去除的概率为 99.9%&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;几点说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;可以使用 &lt;a href=&quot;https://github.com/seisman/sac_tools&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;sac2col&lt;/a&gt; 将 SAC 的每个数据点提取出一列 ASCII 数据，这样就可以直观的去判断是否符合上述准则&lt;/li&gt;
+&lt;li&gt;这个准则仅对现代的数字地震仪成立&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;要理解这个准则成立的原因，首先需要对仪器响应有清晰的认识。在博客的前几篇博文中 已经有了详细的介绍。简单来说，地面的运动物理量（比如速度，单位为 &lt;code&gt;m/s&lt;/code&gt;）会首先被 转换成电压信号（单位为 &lt;code&gt;V&lt;/code&gt;），然后每个电压值会被转换成离散的数字信号，数字信号的 最小间隔由模数转换器决定，故而现代数字地震仪的输出的单位总是 &lt;code&gt;counts&lt;/code&gt;，即最原始的 波形数据总是最小间隔的整数倍。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;有些时候，波形数据拿到手了，但是却不知道波形数据是否有被处理过，尤其是有没有去除仪器响应。&lt;/p&gt;
+&lt;p&gt;先说结论，判断一个 SAC 数据是否已经去除仪器响应的准则是：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;若一个 SAC 数据中每个数据点的值都是整数，则这个数据的仪器响应没有被去除的概率为 99.9%&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="SAC" scheme="http://seisman.info/categories/SAC/"/>
+    
+    
+      <category term="仪器响应" scheme="http://seisman.info/tags/%E4%BB%AA%E5%99%A8%E5%93%8D%E5%BA%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在极坐标下绘制深度剖面</title>
+    <link href="http://seisman.info/depth-profile-in-polar-coordinates.html"/>
+    <id>http://seisman.info/depth-profile-in-polar-coordinates.html</id>
+    <published>2016-03-11T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;在做大区域层析成像时，通常需要绘制深度剖面。一个简单的示例如下：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016031201.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;p&gt;这样的深度剖面图实际上是在极坐标下绘制的。先直接给出绘制上图所使用的命令:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gmt psbasemap -R60/80/5571/6371 -JPa15c/70z -Bx5 -By200 -BWNse &amp;gt; test.ps&lt;/code&gt;&lt;/pre&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;要想理解这样一张图，首先要对极坐标投影有一定的了解。以 &lt;code&gt;-JP&lt;/code&gt; 为例，其语法为:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;-JP[a]&amp;lt;width&amp;gt;[/&amp;lt;base&amp;gt;][r|z]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;先绘制一个最简单的极坐标的例子:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gmt psbasemap -R0/360/0/6371 -JP15c -Bx30 -Byg2000 &amp;gt; test.ps&lt;/code&gt;&lt;/pre&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016031202.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;p&gt;从这张图中可以看出，theta 角的定义是相对于水平轴方向逆时针旋转的角度，且圆心处 r 值为 0，而 &lt;code&gt;-JP15c&lt;/code&gt; 代表的是整个图的宽度，本图中也就是圆的直径。&lt;/p&gt;
+&lt;p&gt;回到具体的问题，因为要绘制 60 度到 80 度范围内 0 到 800 公里的一个深度剖面，所以 &lt;code&gt;-R&lt;/code&gt; 的范围应该取为 &lt;code&gt;-R60/80/5571/6371&lt;/code&gt; :&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gmt psbasemap -R60/80/5571/6371 -JP15c -Bx5 -By200 -BWNse &amp;gt; test1.ps&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;此时的效果图如下：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016031203.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;p&gt;需要尤其注意的是，此时 &lt;code&gt;-JP&lt;/code&gt; 中的 15c 代表的依然是整个图的宽度，而不是其所对应的圆的半径或直径。&lt;/p&gt;
+&lt;p&gt;在这种图的基础上，将投影方式进一步修改为 &lt;code&gt;-JPa15c/70z&lt;/code&gt; ，其中：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;code&gt;a&lt;/code&gt; 的作用在于使得 theta 代表方位角，即相对于正北方向顺时针旋转的角度&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;z&lt;/code&gt; 使得标注的不是半径而是深度，即标注的不是 5571 到 6371 而是 0 到 800&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;/70&lt;/code&gt; 的作用是使得极坐标旋转 70 度，这样图看起来就更 “正” 了&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在做大区域层析成像时，通常需要绘制深度剖面。一个简单的示例如下：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016031201.png&quot; /&gt;
+
+&lt;/div&gt;
+&lt;p&gt;这样的深度剖面图实际上是在极坐标下绘制的。先直接给出绘制上图所使用的命令:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gmt psbasemap -R60/80/5571/6371 -JPa15c/70z -Bx5 -By200 -BWNse &amp;gt; test.ps&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="GMT技巧" scheme="http://seisman.info/tags/GMT%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hinet/Fnet 台站选择工具</title>
+    <link href="http://seisman.info/hinet-station-selector.html"/>
+    <id>http://seisman.info/hinet-station-selector.html</id>
+    <published>2016-03-07T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;Hinet 大概有不到 800 个台站，Fnet 大概有 150 个左右的台站。在从 Hinet 网站上下载 数据时，默认是会下载所有台站的波形数据的。若只需要申请其中部分台站的数据， 则需要使用 Hinet 网站自带的台站选择工具。&lt;/p&gt;
+&lt;p&gt;Hinet 网站自带的台站工具有如下优缺点：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;图形界面，直观得显示了每个台站的位置&lt;/li&gt;
+&lt;li&gt;无法通过某些条件进行筛选，一次只能选中或删除一个台站&lt;/li&gt;
+&lt;li&gt;似乎需要一个 Java 的浏览器工具才能使用&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;因此，写了一个可以用于选择台站的 Python 工具，即 &lt;code&gt;StationSelector.py&lt;/code&gt;，其是 &lt;a href=&quot;https://github.com/seisman/HinetScripts&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;HinetScripts&lt;/a&gt; 项目下中的一个脚本。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;其用法如下:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ python StationSelector.py -h
+Select Hi-net/F-net stations to request waveform data from NIED
+
+Usage:
+    StationSelector.py -c CODE [-l LIST]
+    StationSelector.py -h
+
+Options:
+    -h, --help              Show this help.
+    -c CODE, --code=CODE    Network code. Hi-net: 0101, F-net: 0103.
+    -l LIST, --list=LIST    Station list file.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;code&gt;-c CODE&lt;/code&gt; 选项用于指定是选择 Hinet 台网下的台站还是 Fnet 台网下的台站&lt;/li&gt;
+&lt;li&gt;若不使用 &lt;code&gt;-l&lt;/code&gt; 选项，则会选择全部台站&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-l LIST&lt;/code&gt; 指定了一个列表文件，文件中包含了台站列表，每行一个台站名，以 &lt;code&gt;#&lt;/code&gt; 开头的行会被忽略&lt;/li&gt;
+&lt;li&gt;台站名的格式为 &lt;code&gt;X.XXXX&lt;/code&gt; 而不是 &lt;code&gt;X.XXXX.X&lt;/code&gt;，即只能指定台站名，无法精确到分量名&lt;/li&gt;
+&lt;li&gt;该脚本并不检查台站名是否属于该台网&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;示例如下，假如台站列表文件 &lt;code&gt;sta.list&lt;/code&gt; 中包含如下几行:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;N.FJ2H
+N.OTWH
+# N.IICH
+N.SMGH&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;则:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;python StationSelector.py -c 0101 -l sta.list&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;会选中 Hinet 的三个台站， &lt;code&gt;N.IICH&lt;/code&gt; 不会被选中。&lt;/p&gt;
+&lt;p&gt;该脚本功能并不强大，因而建议的用法是：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;用 &lt;code&gt;HinetContRequest.py&lt;/code&gt; 申请全部台站的几分钟的数据&lt;/li&gt;
+&lt;li&gt;用 &lt;code&gt;rdhinet.py&lt;/code&gt; 解压所有台站的数据，得到 SAC 格式的数据&lt;/li&gt;
+&lt;li&gt;用 &lt;code&gt;saclst stlo stla f *.U&lt;/code&gt; 获取台站的经纬度信息&lt;/li&gt;
+&lt;li&gt;用 &lt;code&gt;awk&lt;/code&gt; 或写脚本筛选出自己需要的台站列表&lt;/li&gt;
+&lt;li&gt;调用 &lt;code&gt;StationSelector.py&lt;/code&gt; 选择台站&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Hinet 大概有不到 800 个台站，Fnet 大概有 150 个左右的台站。在从 Hinet 网站上下载 数据时，默认是会下载所有台站的波形数据的。若只需要申请其中部分台站的数据， 则需要使用 Hinet 网站自带的台站选择工具。&lt;/p&gt;
+&lt;p&gt;Hinet 网站自带的台站工具有如下优缺点：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;图形界面，直观得显示了每个台站的位置&lt;/li&gt;
+&lt;li&gt;无法通过某些条件进行筛选，一次只能选中或删除一个台站&lt;/li&gt;
+&lt;li&gt;似乎需要一个 Java 的浏览器工具才能使用&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;因此，写了一个可以用于选择台站的 Python 工具，即 &lt;code&gt;StationSelector.py&lt;/code&gt;，其是 &lt;a href=&quot;https://github.com/seisman/HinetScripts&quot;&gt;HinetScripts&lt;/a&gt; 项目下中的一个脚本。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学基础" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="Python" scheme="http://seisman.info/tags/Python/"/>
+    
+      <category term="Hinet" scheme="http://seisman.info/tags/Hinet/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hinet 配置检查脚本</title>
+    <link href="http://seisman.info/hinetdoctor.html"/>
+    <id>http://seisman.info/hinetdoctor.html</id>
+    <published>2016-03-06T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;&lt;code&gt;HinetDoctor.py&lt;/code&gt; 是 &lt;a href=&quot;https://github.com/seisman/HinetScripts&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;HinetScripts&lt;/a&gt; 项目中的一个 Python 脚本。&lt;/p&gt;
+&lt;p&gt;该脚本主要有如下功能：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;检查 Python 版本是否大于 3.3&lt;/li&gt;
+&lt;li&gt;检查是否已安装所有依赖&lt;/li&gt;
+&lt;li&gt;检查配置文件是否可正常读取&lt;/li&gt;
+&lt;li&gt;检查账号密码是否正确，或是否可以正常登陆&lt;/li&gt;
+&lt;li&gt;检查 Hinet 网站是否有更新，若网站有更新，而脚本未更新，则脚本可能失效&lt;/li&gt;
+&lt;li&gt;检查 win32tools 中的 &lt;code&gt;catwin32&lt;/code&gt; 和 &lt;code&gt;win2sac_32&lt;/code&gt; 是否可以被正常调用&lt;/li&gt;
+&lt;li&gt;检查已选中的 Hinet 和 Fnet 的台站数目&lt;/li&gt;
+&lt;li&gt;检查配置文件中 &lt;code&gt;MaxSpan&lt;/code&gt; 是否符合要求&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;code&gt;HinetDoctor.py&lt;/code&gt; 是 &lt;a href=&quot;https://github.com/seisman/HinetScripts&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;HinetScripts&lt;/a&gt; 项目中的一个 Py
+    
+    </summary>
+    
+      <category term="地震学基础" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="Python" scheme="http://seisman.info/tags/Python/"/>
+    
+      <category term="Hinet" scheme="http://seisman.info/tags/Hinet/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>用 SAC 快速拾取震相</title>
+    <link href="http://seisman.info/faster-ppk.html"/>
+    <id>http://seisman.info/faster-ppk.html</id>
+    <published>2016-02-18T16:00:00.000Z</published>
+    <updated>2016-02-27T16:00:00.000Z</updated>
+    
+    <content type="html">&lt;p&gt;震相拾取，是地震学的一个基本工作。SAC 提供了 &lt;code&gt;plotpk&lt;/code&gt; 命令，可以用于手动拾取 震相到时，用起来还算是比较简单方便。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;痛点&quot;&gt;痛点&lt;/h2&gt;
+&lt;p&gt;在使用 &lt;code&gt;plotpk&lt;/code&gt; 拾取震相时，还是会遇到一些不如意的地方。尤其是在有大量波形 数据需要拾取的时候。下面列出我日常遇到的几个痛点：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;拾取震相时通常需要按下 &lt;code&gt;T&lt;/code&gt; 和数字键，有时还需要按下 &lt;code&gt;B&lt;/code&gt; 或 &lt;code&gt;N&lt;/code&gt; 来上下翻页。 效率低下，一方面需要按两次按键才能标记一个到时，另一方面大多数数字键与 &lt;code&gt;T&lt;/code&gt; 距离较远，手指姿势比较别扭且容易误敲键盘&lt;/li&gt;
+&lt;li&gt;无法删除某个震相标记。如果想标记 T0，但是一不小心标记了 T1，此时没法将 T1 中的到时删除&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;解决办法&quot;&gt;解决办法&lt;/h2&gt;
+&lt;p&gt;修改了 SAC 源码中的 &lt;code&gt;xppk.c&lt;/code&gt; ，基本解决了以上痛点。关于源码的几点说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;SAC 的协议规定了不能私自修改 SAC 源码，此处给出了修改后的 &lt;code&gt;xppk.c&lt;/code&gt; ，低调低调&lt;/li&gt;
+&lt;li&gt;修改版源码基于 SAC v101.6a，所以在其他版本上可能无法使用&lt;/li&gt;
+&lt;li&gt;下载修改版源码，用其覆盖 SAC v101.6a 源码里的 &lt;code&gt;src/gam/xppk.c&lt;/code&gt;，然后重新编译 SAC 即可&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;源码下载： &lt;a href=&quot;http://7j1zxm.com1.z0.glb.clouddn.com/downloads/xppk.c&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;xppk.c&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;修改后的源码新增了如下功能：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;直接使用数字键拾取震相，即省略了按键 &lt;code&gt;T&lt;/code&gt; ，按 &lt;code&gt;0&lt;/code&gt; 就拾取到时 T0，按 &lt;code&gt;1&lt;/code&gt; 就拾取到时 T1&lt;/li&gt;
+&lt;li&gt;按下 &lt;code&gt;@&lt;/code&gt; 键即可删除最近一次到时标记（A、F、P、S 以及 T0 到 T9）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;修改后的源码与原 SAC 有如下不兼容的地方：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;原 SAC 中，数字键 0 到 4 被用于定义震相质量，修改后的源码中 0 到 9 则被用于标记震相到时&lt;/li&gt;
+&lt;li&gt;原 SAC 中，按键 &lt;code&gt;@&lt;/code&gt; 用于一次性删除多个震相到时（A、F、P、S 和 T0），修改后的源码中 &lt;code&gt;@&lt;/code&gt; 可以删除任意一个到时标记&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;考虑到定义震相质量和一次性删除多个震相到时这两个功能很少用到，因而为了拾取 震相的便利性而废弃了这两个功能，虽然带来了不兼容问题，但是基本无伤大雅。&lt;/p&gt;
+&lt;h2 id=&quot;一些说明&quot;&gt;一些说明&lt;/h2&gt;
+&lt;p&gt;关于数字键标记到时的说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;依然可以使用 &lt;code&gt;T + 数字键&lt;/code&gt; 来标记到时。即 &lt;code&gt;T&lt;/code&gt; 可以省略也可以不省略，兼容之前的标记到时的方法&lt;/li&gt;
+&lt;li&gt;在 ppk 模式下单击鼠标，相当于敲键 &lt;code&gt;L&lt;/code&gt;，此时会在图上显示当前点的 X 和 Y 值， 所以如果可以通过简单的单击就标记到时，应该会更高效。但目前还没有实现该功能， 一方面是涉及到一些技术细节，另一方面是单击操作太容易发生，标记到时是 变得简单了，但误标记也变得容易发生&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;关于 &lt;code&gt;@&lt;/code&gt; 删除震相到时功能的说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;实现原理：定义一个字符型变量，用于保存上一次按键，若新按键是 &lt;code&gt;@&lt;/code&gt;，且上一 按键是 A、F、P、S 或 0 到 9 中的任意一个，则删除上一按键所对应的头段变量中的到时标记&lt;/li&gt;
+&lt;li&gt;表面上看，这一功能只能删除最近一次的到时标记，但实际上是可以删除任意文件的 任意一个到时标记的&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;关于 &lt;code&gt;@&lt;/code&gt; 删除震相到时功能的示例：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;要拾取一个波形数据，在 ppk 模式下，按下数字 1，此时会标记到时 T1，再按下 @，由于上一 字符是 1，所以此时按下 &lt;span class=&quot;citation&quot;&gt;@会删除&lt;/span&gt; T1 的到时标记。实际操作时，屏幕上会出现两个 T1，这是 显示的问题，通过放大缩小刷新一下图片就会发现到时 T1 已被删除&lt;/li&gt;
+&lt;li&gt;要拾取一个波形数据，在 ppk 模式下依次按下 0、1、2，此时会标记到时 T0、T1 和 T2。 此时按下 @，由于上一字符是 2，所以会删除 T2 中的到时。若想要删除 T0 的到时，则需要 先按下 0 再按下 @，按下 0 会重新标记到时 T0，再按下 &lt;span class=&quot;citation&quot;&gt;@时上一字符由于是&lt;/span&gt; 0，所以会删除 T0 中的 到时。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;修订历史&quot;&gt;修订历史&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;2016-02-19：直接用数字键标记到时&lt;/li&gt;
+&lt;li&gt;2016-02-25：新增删除到时标记功能&lt;/li&gt;
+&lt;li&gt;2016-02-28：修复了 &lt;span class=&quot;citation&quot;&gt;@符号无法删除&lt;/span&gt; P 和 S 到时的 BUG&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;震相拾取，是地震学的一个基本工作。SAC 提供了 &lt;code&gt;plotpk&lt;/code&gt; 命令，可以用于手动拾取 震相到时，用起来还算是比较简单方便。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="SAC" scheme="http://seisman.info/categories/SAC/"/>
+    
+    
+      <category term="SAC技巧" scheme="http://seisman.info/tags/SAC%E6%8A%80%E5%B7%A7/"/>
+    
+      <category term="震相" scheme="http://seisman.info/tags/%E9%9C%87%E7%9B%B8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>关于博客无法访问的说明</title>
+    <link href="http://seisman.info/gfw.html"/>
+    <id>http://seisman.info/gfw.html</id>
+    <published>2016-01-19T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;最近，博客出现了无法访问的情况。就我自己遇到的情况来说，同一个实验室里，台式机连接了交换机，无法访问博客，笔记本连接了无线路由，则可以正常访问。&lt;/p&gt;
+&lt;p&gt;台式机下 ping 我的博客，总是返回 127.0.0.1，也就是本地地址。咨询了学校的网络管理员，得出的结论是 GFW 对 info 后缀的域名做了 DNS 污染，进而导致域名解析时返回 127.0.0.1，好忧伤。。。&lt;/p&gt;
+&lt;p&gt;就我掌握的情况来看：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;某些地区会由于 DNS 污染而无法访问&lt;/li&gt;
+&lt;li&gt;DNS 污染似乎不是持续性的，时好时坏&lt;/li&gt;
+&lt;li&gt;手机 4G 网络不受影响&lt;/li&gt;
+&lt;li&gt;翻墙可以访问&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;目前我无法解决此问题，因而如果你遇到无法访问本博客的问题，可以尝试通过如下方法来解决：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;使用手机 4G 网络访问，前提是你不心疼流量&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;修改 hosts，在 hosts 文件中加入如下语句:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;192.30.252.153 seisman.info&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;具体如何修改请自行解决&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;修改 DNS 服务器，比如可以使用科大 DNS，具体如何修改请自行解决&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;使用翻墙工具，比如 lantern 或者 XX-net&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近，博客出现了无法访问的情况。就我自己遇到的情况来说，同一个实验室里，台式机连接了交换机，无法访问博客，笔记本连接了无线路由，则可以正常访问。&lt;/p&gt;
+&lt;p&gt;台式机下 ping 我的博客，总是返回 127.0.0.1，也就是本地地址。咨询了学校的网络管理员，得出的结论是 
+    
+    </summary>
+    
+      <category term="胡言乱语" scheme="http://seisman.info/categories/%E8%83%A1%E8%A8%80%E4%B9%B1%E8%AF%AD/"/>
+    
+    
+      <category term="博客" scheme="http://seisman.info/tags/%E5%8D%9A%E5%AE%A2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>绘制颜色渐变的线条</title>
+    <link href="http://seisman.info/plot-lines-with-gradient-colors.html"/>
+    <id>http://seisman.info/plot-lines-with-gradient-colors.html</id>
+    <published>2016-01-17T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;想要绘制一条颜色变化的线段，下面是演示代码：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT v5.2.1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt makecpt -Crainbow -T-2/2/1 &amp;gt; lines.cpt&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -JX15c/4c -R0/6/0/4 -B1 -Clines.cpt -W2p &amp;gt; test.ps &amp;lt;&amp;lt; EOF&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z-1.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;1 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z-0.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z0.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z1.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;EOF&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;绘图效果如下图：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016011801.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;简单解释一下：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;code&gt;makecpt&lt;/code&gt; 命令制作了一个 - 2 到 2 间隔为 1 的 CPT 文件&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;psxy&lt;/code&gt; 命令中使用了 &lt;code&gt;-C&lt;/code&gt; 选项，此时需要输入数据是多段表数据，且每段数据的段头记录中，需要有 &lt;code&gt;-Z&amp;lt;val&amp;gt;&lt;/code&gt; 以指定每段数据的 Z 值&lt;/li&gt;
+&lt;li&gt;实际绘图时，对于每段数据，命令会读取该数据数据的段头记录中的 &lt;code&gt;-Z&amp;lt;val&amp;gt;&lt;/code&gt; 中的 Z 值，然后到 CPT 文件中查找 Z 值所对应的颜色，作为该段线段的颜色&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;实际绘图时，可能遇到的情况是：已知 A 点和 B 点的 Z 值，A 点到 B 点连线上 Z 值渐变，想要通过线条颜色的渐变来体现 Z 值的渐变。此时需要一些额外的处理，其中涉及到一些编程，所以下面仅提供思路。&lt;/p&gt;
+&lt;p&gt;已知 A 点和 B 点坐标，利用如下命令将 A 到 B 的连线等分成若干份:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;gmt project -C&amp;lt;xA&amp;gt;/&amp;lt;yA&amp;gt; -E&amp;lt;xB&amp;gt;/&amp;lt;yB&amp;gt; -G&amp;lt;dist&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其中 &lt;code&gt;-C&lt;/code&gt; 后接 A 点坐标， &lt;code&gt;-E&lt;/code&gt; 后接 B 点坐标， &lt;code&gt;-G&lt;/code&gt; 后接等分后相邻两点间的距离。 &lt;code&gt;&amp;lt;dist&amp;gt;&lt;/code&gt; 越小，A 到 B 线段的颜色变化就越平滑。&lt;/p&gt;
+&lt;p&gt;最终输出的结果中有三列数据：X 坐标、Y 坐标和与 A 点的距离。对于生成的每个点而言，根据 A 和 B 两点的 Z 值、A 和 B 两点之间的距离以及该点与 A 点之间的距离，通过简单的线性插值，即可得到每一点的 Z 值。&lt;/p&gt;
+&lt;p&gt;有了 AB 之间每一点的坐标和 Z 值，就可以构建如上例所示的多段数据。对于每段数据而言，其 Z 值可以取该段数据首尾两点 Z 值的平均，或者其他取法亦可。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;想要绘制一条颜色变化的线段，下面是演示代码：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT v5.2.1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt makecpt -Crainbow -T-2/2/1 &amp;gt; lines.cpt&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -JX15c/4c -R0/6/0/4 -B1 -Clines.cpt -W2p &amp;gt; test.ps &amp;lt;&amp;lt; EOF&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z-1.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;1 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z-0.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z0.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt; -Z1.5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5 2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;EOF&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;绘图效果如下图：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2016011801.png&quot; /&gt;
+
+&lt;/div&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="GMT技巧" scheme="http://seisman.info/tags/GMT%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SAC 中将位移记录转换成速度记录</title>
+    <link href="http://seisman.info/sac-convert-displacement-to-velocity.html"/>
+    <id>http://seisman.info/sac-convert-displacement-to-velocity.html</id>
+    <published>2016-01-11T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;将位移记录转换成速度记录，本质上就是微分，在 SAC 中有三种方法可以实现。&lt;/p&gt;
+&lt;p&gt;先生成测试用的数据:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SAC&amp;gt; fg seis
+SAC&amp;gt; rmean; rtr; taper
+SAC&amp;gt; w seis.sac&lt;/code&gt;&lt;/pre&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;p&gt;直接对 &lt;code&gt;diff&lt;/code&gt; 命令对波形做时间域微分:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SAC&amp;gt; r ./seis.sac
+SAC&amp;gt; dif
+SAC&amp;gt; w seis.sac.diff&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;用 &lt;code&gt;transfer&lt;/code&gt; 命令去仪器响应的功能实现微分，该操作本质上在频率域完成:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SAC&amp;gt; r ./seis.sac
+SAC&amp;gt; transfer from none to vel
+   Station (CDV), Channel (-12345)
+SAC&amp;gt; w seis.sac.transfer&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;时间域的微分在频率域等效于乘以叫频率:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SAC&amp;gt; r ./seis.sac
+SAC&amp;gt; fft
+ DC level after DFT is -0.0051373
+SAC&amp;gt; mulomega
+SAC&amp;gt; ifft
+SAC&amp;gt; w seis.sac.mulomega&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;测试结果表明，三种算法的结果差别很小，可以忽略。不过需要注意的是，使用 &lt;code&gt;diff&lt;/code&gt; 做时间域微分时数据点数会少一个。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;将位移记录转换成速度记录，本质上就是微分，在 SAC 中有三种方法可以实现。&lt;/p&gt;
+&lt;p&gt;先生成测试用的数据:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SAC&amp;gt; fg seis
+SAC&amp;gt; rmean; rtr; taper
+SAC&amp;gt; w seis.sac&lt;/cod
+    
+    </summary>
+    
+      <category term="SAC" scheme="http://seisman.info/categories/SAC/"/>
+    
+    
+      <category term="SAC技巧" scheme="http://seisman.info/tags/SAC%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>在地图上绘制特定的经纬线</title>
+    <link href="http://seisman.info/plot-specified-gridline-on-maps.html"/>
+    <id>http://seisman.info/plot-specified-gridline-on-maps.html</id>
+    <published>2015-12-10T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;问题：想要在地图上只绘制某条经线或 / 和某条纬线，该如何实现？&lt;/p&gt;
+&lt;p&gt;GMT 中的 &lt;code&gt;-B&lt;/code&gt; 选项可以用于控制是否绘制网格线以及网格线的间隔。如果精心设计 &lt;code&gt;-B&lt;/code&gt; 选项中的网格间隔以及第一条网格线的偏移量，是可以使得整张图中只有一条经线或 / 和纬线并保证该经线 / 纬线落在合适的位置，但是这种方法相对来说比较麻烦且很难用于批量绘图。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;最好的解决办法是，直接用 &lt;code&gt;psxy&lt;/code&gt; 绘制经线和纬线。具体示例如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;26&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;27&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;R=80/150/0/60&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;J=B116/20/25/45/15c&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;B=15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PS=map.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psbasemap -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -B&lt;span class=&quot;variable&quot;&gt;$B&lt;/span&gt; -P -K &amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt pscoast -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Ggray -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;echo&lt;/span&gt; 116.46 39.92 | gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Sc0.5c -Gred -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;##### 核心命令&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;``` bash&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -W1p,blue,- -K -O -Am &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt; &amp;lt;&amp;lt; EOF&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;116.46 0&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;116.46 60&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;80 39.92&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;150 39.92&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;EOF&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#####&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -T -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;rm gmt.*&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;以上代码的绘图效果如下：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2015121101.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;p&gt;最核心的命令已经在脚本中标出，该脚本中绘制了两条线段:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;gt;
+116.46 0
+116.46 60
+&amp;gt;
+80 39.92
+150 39.92&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;分别代表经线和纬线。&lt;/p&gt;
+&lt;p&gt;通常，GMT 会将两点按大圆路径连接起来。一条经线恰好是一个大圆路径，而一条纬线则不是大圆路径，因而需要做一些特殊的处理，即使用 &lt;code&gt;-Am&lt;/code&gt; 或 &lt;code&gt;-Ap&lt;/code&gt; 选项。 &lt;code&gt;-Am&lt;/code&gt; 使得两点之间连线时先沿着经线走再沿着纬线走，&lt;code&gt;-Ap&lt;/code&gt; 选项使得两点之间连线时先沿着纬线走再沿着经线走。此处，用 &lt;code&gt;-Am&lt;/code&gt; 和 &lt;code&gt;-Ap&lt;/code&gt; 效果都是一样的，可以试着把 &lt;code&gt;-Am&lt;/code&gt; 选项去掉再绘图，来理解为什么要使用这个选项。&lt;/p&gt;
+&lt;p&gt;两条线段里，分别使用了 &lt;code&gt;-R&lt;/code&gt; 选项中 Y 轴的范围和 X 轴的范围，所以以上代码完全可以通过定义变量来适应任意的情况。为了简单起见，就不再写更通用的版本了。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;问题：想要在地图上只绘制某条经线或 / 和某条纬线，该如何实现？&lt;/p&gt;
+&lt;p&gt;GMT 中的 &lt;code&gt;-B&lt;/code&gt; 选项可以用于控制是否绘制网格线以及网格线的间隔。如果精心设计 &lt;code&gt;-B&lt;/code&gt; 选项中的网格间隔以及第一条网格线的偏移量，是可以使得整张图中只有一条经线或 / 和纬线并保证该经线 / 纬线落在合适的位置，但是这种方法相对来说比较麻烦且很难用于批量绘图。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="GMT技巧" scheme="http://seisman.info/tags/GMT%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SOFI2D 笔记</title>
+    <link href="http://seisman.info/sofi2d-notes.html"/>
+    <id>http://seisman.info/sofi2d-notes.html</id>
+    <published>2015-12-07T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;SOFI2D 是一个二维 PSV 交错网格有限差分代码。要使用该程序，至少需要阅读如下几篇参考文献：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Virieux, J. 1986. P-SV wave propagation in heterogeneous media: velocity-stress finite- difference method. Geophysics, 51(4), 889–901.&lt;/li&gt;
+&lt;li&gt;Levander, A.R. 1988. Fourth-order finite-difference P-SV seismograms. Geophysics, 53(11), 1425–1436.&lt;/li&gt;
+&lt;li&gt;SOFI2D User Guide&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;具体的用法及每个参数的意义在官方文档已经介绍的很详细，本文是我使用 SOFI2D 过程中的经验总结。&lt;/p&gt;
+&lt;p&gt;注：本文使用的是 2015 年 10 月 28 日发布的 SOFI2D。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;运行 SOFI2D 所需的文件都在 &lt;code&gt;par&lt;/code&gt; 目录下，其中需要修改的文件包括：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;in_and_out/sofi2D.json&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;model/test&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;source/source.dat&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;receiver/receiver.dat&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;in_and_out/sofi2d.json&lt;/code&gt; 是程序的输入配置文件，配置文件是用 json 语法写的，并且将众多的 变量分成了若干类。在设计不同的速度模型时，某些变量基本不需要改动，某些变量则可能需要经常改动。&lt;/p&gt;
+&lt;p&gt;在设计模型时，可以按照如下顺序逐一修改或检查如下参数：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;生成速度模型：2D 速度模型需要自己写程序生成，参考 &lt;code&gt;src/hh_elastic.c&lt;/code&gt; 和 &lt;code&gt;genmod/2layer.c&lt;/code&gt; ，并将生成的模型保存到 &lt;code&gt;model&lt;/code&gt; 目录下&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;source/source.dat&lt;/code&gt; 中指定震源时间函数的中心频率（也可从文件中读入震源时间函数）、振幅和时间延迟&lt;/li&gt;
+&lt;li&gt;估算震源时间函数的最大频率。如果是使用内置震源时间函数，可以近似认为最大频率是 中心频率的两倍，如果是从文件中读入自定义的震源时间函数，可以对其做 FFT，将振幅谱中的拐点作为最大频率&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;频散条件要求一个波长内要至少有 n 个网格点，因而要根据最大频率和最小速度计算出最大的网格间隔。在满足公式&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math display&quot;&gt;\[dh \le \frac{V_{min}}{n f_{max}}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;的前提下选择 &lt;span class=&quot;math inline&quot;&gt;\(dh\)&lt;/span&gt; ，其中 n 由 &lt;code&gt;FDORDER&lt;/code&gt; 决定&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;为了满足稳定性条件，要根据网格间隔和模型中的最大速度选择合适的时间步长。在满足公式&lt;/p&gt;
+&lt;p&gt;&lt;span class=&quot;math display&quot;&gt;\[dt \le \frac{dh}{h \sqrt{2} V_{max}}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;的前提下选择 &lt;span class=&quot;math inline&quot;&gt;\(dt\)&lt;/span&gt; 值，其中 h 由 &lt;code&gt;FDORDER&lt;/code&gt; 决定&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;修改 &lt;code&gt;in_and_out/sofi2d.json&lt;/code&gt; 中的 &lt;code&gt;DH&lt;/code&gt; 和 &lt;code&gt;DT&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;source/source.dat&lt;/code&gt; 中指定震源位置&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;receiver/receiver.dat&lt;/code&gt; 中指定台站位置&lt;/li&gt;
+&lt;li&gt;修改配置文件中的 2-D Grid 部分，指定 &lt;code&gt;NX&lt;/code&gt; 和 &lt;code&gt;NY&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;根据计算机的核数以及 &lt;code&gt;NX&lt;/code&gt; 和 &lt;code&gt;NY&lt;/code&gt; 的值，修改 Domain Decomposition 部分&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;startSOFI2D.sh&lt;/code&gt; 中 &lt;code&gt;-np&lt;/code&gt; 后面的进程数应与 &lt;code&gt;NPROCX*NPROCY&lt;/code&gt; 相等&lt;/li&gt;
+&lt;li&gt;修改配置文件中的 Time Stepping 部分&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;如果要生成波场快照的话，则修改 Snapshots 部分&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;然后就可以开始计算了，每次修改模型之后，都需要按照上面的顺序检查各个参数。&lt;/p&gt;
+&lt;p&gt;使用过程中需要注意的一些地方：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;p&gt;运行 SOFI2D 时目录名必须为 &lt;code&gt;par&lt;/code&gt; ，该目录下各个子目录的名字不可变&lt;/p&gt;
+&lt;p&gt;理论上运行目录是不是 &lt;code&gt;par&lt;/code&gt; 都可以，各个子目录的名字在 &lt;code&gt;json&lt;/code&gt; 文件中也是可以任意设定的。但实际运行的过程中如果运行目录不是 &lt;code&gt;par&lt;/code&gt; 或者各个子目录的名字与默认的子目录名不一样都会直接报错退出。这实际上是代码 &lt;code&gt;src/check_fs.c&lt;/code&gt; 的 bug 导致的，该代码的目的在于检查文件系统，即目录 是否存在，以及文件是否可读、可写。由于该代码将所有目录名硬编码在源码中， 所以导致各个目录名不可修改。解决办法有两个：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;把主程序中对 &lt;code&gt;check_fs&lt;/code&gt; 的调用注释掉&lt;/li&gt;
+&lt;li&gt;保留原 par 目录，每次自己新建目录，这样 &lt;code&gt;check_fs&lt;/code&gt; 每次都会检查 &lt;code&gt;par&lt;/code&gt; 目录，而不会检查新建的目录&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;默认四个边界都是吸收边界， &lt;code&gt;FREE_SURF&lt;/code&gt; 控制上表面是否为自由边界， &lt;code&gt;BOUNDARY&lt;/code&gt; 控制左右是否为周期性边界条件&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;交错网格结构的定义如下:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Txx,Tzz   Ux
+
+
+Uz        Txz&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;因而同一个网格点内的垂直分量要比水平分量深半个网格点。&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;源码中 &lt;code&gt;src/update_v_interior.c&lt;/code&gt; 是时间二阶，空间二阶有限差分格式， 对应于 Virieux 1986，是最简单的一个&lt;/li&gt;
+&lt;li&gt;计算出的理论地震图，到时应以 onset 为准，而不是以 peak 为准。&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;sofi2d 与 fk，即便用完全相同的震源时间函数，其波形也是无法直接做对比的， 因为 fk 计算的是点源三维波场，sofi2d 计算的是线源二维波场，因而 sofi2d 计算的结果需要做线源到点源的转换&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SOFI2D 是一个二维 PSV 交错网格有限差分代码。要使用该程序，至少需要阅读如下几篇参考文献：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Virieux, J. 1986. P-SV wave propagation in heterogeneous media: velocity-stress finite- difference method. Geophysics, 51(4), 889–901.&lt;/li&gt;
+&lt;li&gt;Levander, A.R. 1988. Fourth-order finite-difference P-SV seismograms. Geophysics, 53(11), 1425–1436.&lt;/li&gt;
+&lt;li&gt;SOFI2D User Guide&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;具体的用法及每个参数的意义在官方文档已经介绍的很详细，本文是我使用 SOFI2D 过程中的经验总结。&lt;/p&gt;
+&lt;p&gt;注：本文使用的是 2015 年 10 月 28 日发布的 SOFI2D。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="笔记" scheme="http://seisman.info/tags/%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="理论地震图" scheme="http://seisman.info/tags/%E7%90%86%E8%AE%BA%E5%9C%B0%E9%9C%87%E5%9B%BE/"/>
+    
+      <category term="有限差分" scheme="http://seisman.info/tags/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>绘制事件与台站间的连线</title>
+    <link href="http://seisman.info/raypath-between-events-and-stations.html"/>
+    <id>http://seisman.info/raypath-between-events-and-stations.html</id>
+    <published>2015-11-17T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;地震学中，经常需要绘制事件到台站的连线或台站与台站之间的连线。连线沿着大圆路径，理论上用 &lt;code&gt;psxy&lt;/code&gt; 命令即可实现，实际绘图时要更复杂一些。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;单事件多台站的连线&quot;&gt;单事件多台站的连线&lt;/h2&gt;
+&lt;p&gt;假定单个事件的位置保存在文件 &lt;code&gt;event.loc&lt;/code&gt; 中:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;4.5 5&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;多个台站的位置保存到 &lt;code&gt;station.loc&lt;/code&gt; 中:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;2 1
+5 8
+7 4
+9 6&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;旧方法&quot;&gt;旧方法&lt;/h3&gt;
+&lt;p&gt;GMT 4.x 以及 GMT 5.1.x，要实现单事件与多台站之间的连线，只有一种方法，即构建多段数据。&lt;/p&gt;
+&lt;p&gt;多段数据中，每段数据包含两个点，分别是事件位置和台站位置， &lt;code&gt;psxy&lt;/code&gt; 命令会将多段数据中每段里的两个点连起来。在本例中，多段数据 &lt;code&gt;raypath.xy&lt;/code&gt; 的内容如下:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;gt;
+4.5 5
+2 1
+&amp;gt;
+4.5 5
+5 8
+&amp;gt;
+4.5 5
+7 4
+&amp;gt;
+4.5 5
+9 6&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;使用如下命令即可绘制单地震到多台站的连线：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT 5.1.2&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;J=X10c/10c&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;R=0/10/0/10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PS=map.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psbasemap -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -B1 -K &amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 台站和事件位置&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy station.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -St0.4c -Gblack -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy event.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Sa0.8c -Gred -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 连线&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy raypath.xy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -W1p,blue -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -T -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;绘图效果如下图：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2015111901.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;p&gt;本方法的优点在于通用，缺点在于需要手动或写脚本，根据 &lt;code&gt;event.loc&lt;/code&gt; 和 &lt;code&gt;station.loc&lt;/code&gt; 的内容构建多段数据文件。&lt;/p&gt;
+&lt;p&gt;如何写脚本从 &lt;code&gt;station.loc&lt;/code&gt; 和 &lt;code&gt;event.loc&lt;/code&gt; 自动得到如上格式的文件，这是另外一个问题了，不在本文的讨论范围内。&lt;/p&gt;
+&lt;h3 id=&quot;新方法&quot;&gt;新方法&lt;/h3&gt;
+&lt;p&gt;GMT 5.2.1 增加了 &lt;code&gt;-F&lt;/code&gt; 选项，可以更方便地实现事件与台站之间的连线。&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT 5.2.1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;J=X10c/10c&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;R=0/10/0/10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PS=map.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psbasemap -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -B1 -K &amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy station.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -St0.4c -Gblack -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy event.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Sa0.8c -Gred -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy station.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Fr4.5/5 -W1p,blue -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -T -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;此处关键在于 &lt;code&gt;-Fr4.5/5&lt;/code&gt; 选项，即以 &lt;code&gt;4.5/5&lt;/code&gt; 作为参考点，将 &lt;code&gt;station.loc&lt;/code&gt; 中的所有点与参考点做连线。&lt;/p&gt;
+&lt;h2 id=&quot;多事件多台站的连线&quot;&gt;多事件多台站的连线&lt;/h2&gt;
+&lt;p&gt;对于多事件多台站的连线，旧方法同理。新方法中，需要对事件进行循环，提取事件的位置信息，并多次使用 &lt;code&gt;psxy -Fr&amp;lt;evlo&amp;gt;/&amp;lt;evla&amp;gt;&lt;/code&gt; 语法。&lt;/p&gt;
+&lt;p&gt;对 Bash 不了解，这个例子用 Perl 来实现。 &lt;code&gt;event.loc&lt;/code&gt; 中包含了多个事件的位置:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;4.5 5
+5.5 5&lt;/code&gt;&lt;/pre&gt;
+&lt;figure class=&quot;highlight perl&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#!/usr/bin/env perl&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT 5.2.1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;my&lt;/span&gt; $J  = &lt;span class=&quot;string&quot;&gt;&quot;X10c/10c&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;my&lt;/span&gt; $R  = &lt;span class=&quot;string&quot;&gt;&quot;0/10/0/10&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;my&lt;/span&gt; $PS = &lt;span class=&quot;string&quot;&gt;&quot;map.ps&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;gmt psbasemap -J$J -R$R -B1 -K&amp;gt; $PS&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;gmt psxy station.loc -J$J -R$R -St0.4c -Gblack -K -O&amp;gt;&amp;gt; $PS&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;gmt psxy event.loc -J$J -R$R -Sa0.8c -Gred -K -O&amp;gt;&amp;gt; $PS&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;open&lt;/span&gt;(IN,&lt;span class=&quot;string&quot;&gt;&quot;&amp;lt;event.loc&quot;&lt;/span&gt;);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;foreach&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;my&lt;/span&gt; $line (&amp;lt;IN&amp;gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;my&lt;/span&gt; ($evlo, $evla) = &lt;span class=&quot;keyword&quot;&gt;split&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot; &quot;&lt;/span&gt;, $line;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;gmt psxy station.loc -J$J -R$R -Fr$evlo/$evla -W1p,blue -K -O&amp;gt;&amp;gt; $PS&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;gmt psxy -J$J -R$R -T -O&amp;gt;&amp;gt; $PS&quot;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;效果图：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2015111902.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;h2 id=&quot;台站间相互连线&quot;&gt;台站间相互连线&lt;/h2&gt;
+&lt;p&gt;在做噪声成像之类的研究时，没有地震事件的概念，需要将台站之间互相连线，此时用 &lt;code&gt;-Fna&lt;/code&gt; 选项即可。&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#!/bin/bash&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# GMT 5.2.1&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;#&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;J=X10c/10c&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;R=0/10/0/10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;PS=map.ps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psbasemap -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Bx60 -By30 -K &amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy station.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -St0.4c -Gblack -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy station.loc -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -Fna -W1p,blue -K -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;gmt psxy -J&lt;span class=&quot;variable&quot;&gt;$J&lt;/span&gt; -R&lt;span class=&quot;variable&quot;&gt;$R&lt;/span&gt; -T -O &amp;gt;&amp;gt; &lt;span class=&quot;variable&quot;&gt;$PS&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;绘图效果如下图：&lt;/p&gt;
+&lt;div class=&quot;figure&quot;&gt;
+&lt;img src=&quot;/images/2015111903.png&quot;&gt;
+
+&lt;/div&gt;
+&lt;h2 id=&quot;说明&quot;&gt;说明&lt;/h2&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;构建多段数据是最通用的方法&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-F&lt;/code&gt; 选项的用法很丰富，详情见官方文档&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;地震学中，经常需要绘制事件到台站的连线或台站与台站之间的连线。连线沿着大圆路径，理论上用 &lt;code&gt;psxy&lt;/code&gt; 命令即可实现，实际绘图时要更复杂一些。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="GMT技巧" scheme="http://seisman.info/tags/GMT%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>GMT 5.2.1 在 Linux 下的安装</title>
+    <link href="http://seisman.info/install-gmt5.2.x-under-linux.html"/>
+    <id>http://seisman.info/install-gmt5.2.x-under-linux.html</id>
+    <published>2015-11-12T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 为 Ubuntu 和 CentOS 用户写了一个快速安装脚本，见 &lt;a href=&quot;https://github.com/gmt-china/gmt-easy-installer&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;gmt-easy-installer&lt;/a&gt;。 有兴趣的可以试着安装，也欢迎测试各种不同的平台。&lt;/p&gt;
+&lt;p&gt;本文介绍如何在 Linux 下安装 GMT 5.2.x。&lt;/p&gt;
+&lt;p&gt;GMT 5.2.x 系列的安装与 GMT 5.1.x 系列的安装稍有不同，故而在前文基础上单独写一篇。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;说明：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;仅适用于 5.2.1&lt;/li&gt;
+&lt;li&gt;所有命令均在一般用户下完成，需要 root 权限的命令都用 &lt;code&gt;sudo&lt;/code&gt; 执行&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;下载&quot;&gt;下载&lt;/h2&gt;
+&lt;p&gt;GMT 5.2.1 需要下载三个文件：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;GMT 源码： &lt;a href=&quot;ftp://ftp.soest.hawaii.edu/gmt/gmt-5.2.1-src.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;gmt-5.2.1-src.tar.gz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;全球海岸线数据 GSHHG： &lt;a href=&quot;http://gmt.soest.hawaii.edu/files/download?name=gshhg-gmt-2.3.5.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;gshhg-gmt-2.3.5.tar.gz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;全球数字图表 DCW： &lt;a href=&quot;ftp://ftp.soest.hawaii.edu/gmt/dcw-gmt-1.1.2.tar.gz&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;dcw-gmt-1.1.2.tar.gz&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;GMT 5.2.1 的源码包中，没有自带官方的 PDF 文档，需要额外下载：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;http://gmt.soest.hawaii.edu/doc/5.2.1/pdf/GMT_API.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT_API.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://gmt.soest.hawaii.edu/doc/5.2.1/pdf/GMT_Docs.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT_Docs.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://gmt.soest.hawaii.edu/doc/5.2.1/pdf/GMT_Manpages.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT_Manpages.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://gmt.soest.hawaii.edu/doc/5.2.1/pdf/GMT_Tutorial.pdf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GMT_Tutorial&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;下载完成后，可以用 &lt;code&gt;md5sum&lt;/code&gt; 检查压缩文件的 md5 值，以保证该文件是完整且未被篡改的:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ md5sum gmt-5.2.1-src.tar.gz gshhg-gmt-2.3.5.tar.gz dcw-gmt-1.1.2.tar.gz
+df96d3cc9a93bc3c049f1523ada57117  gmt-5.2.1-src.tar.gz
+12c6604d779ddd1727e96433da20e147  gshhg-gmt-2.3.5.tar.gz
+45c99d30026742dbc0b1644ea64f496d  dcw-gmt-1.1.2.tar.gz&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;解决依赖关系&quot;&gt;解决依赖关系&lt;/h2&gt;
+&lt;h3 id=&quot;基础依赖包&quot;&gt;基础依赖包&lt;/h3&gt;
+&lt;p&gt;GMT 的编译需要 C 和 C++ 编译器、cmake 等开发工具。&lt;/p&gt;
+&lt;p&gt;对于 Ubuntu/Debian:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get update
+sudo apt-get install gcc g++ cmake make libc6&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;对于 CentOS/RHEL/Fedora:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo yum install gcc gcc-c++ cmake make glibc&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;GMT 的编译过程要求 cmake 的版本 &lt;code&gt;&amp;gt;=2.8.5&lt;/code&gt; ，需要注意：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;安装 cmake 之后，可以通过 &lt;code&gt;cmake --version&lt;/code&gt; 检查 cmake 版本；&lt;/li&gt;
+&lt;li&gt;CentOS &lt;strong&gt;6.5&lt;/strong&gt; 的官方源中 cmake 的版本为 2.6.4，版本过低，无法满足要求；&lt;/li&gt;
+&lt;li&gt;CentOS &lt;strong&gt;6.6&lt;/strong&gt; 的官方源中 cmake 的版本为 2.8.12，可以满足要求；&lt;/li&gt;
+&lt;li&gt;使用 CentOS 6.5 的用户可以 &lt;code&gt;yum update&lt;/code&gt; 将系统升级到 6.6，即可使用较高版本的 cmake；&lt;/li&gt;
+&lt;li&gt;CentOS 6.5 用户若不愿意升级整个系统，则需要先安装 EPEL 源，再安装 EPEL 源中的 &lt;code&gt;cmake28&lt;/code&gt; ，并且在接下来的编译过程中要将 &lt;code&gt;cmake&lt;/code&gt; 命令改成 &lt;code&gt;cmake28&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;CentOS 7 官方源中 cmake 版本为 2.8.11，可以直接安装使用；&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;软件依赖包&quot;&gt;软件依赖包&lt;/h3&gt;
+&lt;p&gt;GMT5 的依赖包，相对来说要复杂很多：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;看 PS 文件以及将 PS 转换成其他格式需要 &lt;code&gt;ghostscript&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;网格文件需要 &lt;code&gt;netCDF&lt;/code&gt; （&amp;gt;=4.0，且需要支持 netCDF-4/HDF5）&lt;/li&gt;
+&lt;li&gt;GLib 库：提供了 C 语言下的树、hash、列表和字符串功能&lt;/li&gt;
+&lt;li&gt;Perl 兼容正则表达式库 &lt;a href=&quot;http://www.pcre.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;PCRE&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;地理空间数据抽象库 &lt;a href=&quot;http://www.gdal.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GDAL&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Fourier 变换库 &lt;a href=&quot;http://www.fftw.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FFTW&lt;/a&gt; (&amp;gt;=3.3)&lt;/li&gt;
+&lt;li&gt;线性代数库 LAPACK 和 BLAS&lt;/li&gt;
+&lt;li&gt;如果想要自行编译文档的话还需要 &lt;a href=&quot;http://sphinx-doc.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Sphinx&lt;/a&gt; 以及 TeXLive&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对于 Ubuntu/Debian:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo apt-get update
+# 必须安装的包
+sudo apt-get install ghostscript libnetcdf-dev
+sudo apt-get install libglib2.0-dev
+# 推荐安装的包
+sudo apt-get install libgdal-dev python-gdal
+sudo apt-get install liblapack3
+# 可选的安装包
+sudo apt-get install libpcre3-dev libfftw3-dev&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;对于 RHEL/CentOS/Fedora:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# 安装必须的包
+sudo yum install ghostscript netcdf-devel
+sudo yum install glib2-devel
+# 推荐安装的包
+sudo yum install gdal-devel gdal-python
+sudo yum install lapack64-devel lapack-devel
+# 可选的安装包
+sudo yum install pcre-devel fftw-devel&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;一些需要注意的地方:&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;一定不要试图自己手动编译 netCDF，因为手动编译很难解决依赖问题，网上的大多数手动编译 netCDF 的教程中都关闭了 netCDF 对 HDF5 的支持，因而导致 GMT5 无法使用。如果在阅读本文之前曾经手动编译过，一定要将原来手动编译生成的文件删除干净。通常可以使用 &lt;code&gt;locate netcdf&lt;/code&gt; 找到 &lt;code&gt;/usr/local&lt;/code&gt; 目录下的与 netCDF 相关的文件，直接删除即可。&lt;/li&gt;
+&lt;li&gt;CentOS 官方源中不带有 netCDF，需要先安装 EPEL 源&lt;/li&gt;
+&lt;li&gt;pcre、fftw 和 gdal 不是必须要安装的，但是推荐安装。其中 gdal 在做数据格式转换时非常有用；&lt;/li&gt;
+&lt;li&gt;其他发行版很久不用了，不清楚细节，读者可以在使用过程中补充。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;安装-gmt&quot;&gt;安装 GMT&lt;/h2&gt;
+&lt;p&gt;将之前下载的三个压缩文件以及四个 PDF 文档都放在同一个目录里，以下假定目录名为 &lt;code&gt;/home/seisman/Desktop/GMT&lt;/code&gt;：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;25&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;26&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 当前目录名为 /home/seisman/Desktop/GMT&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;pwd&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;/home/seisman/Desktop/GMT&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 当前目录下包含了三个压缩文件和四个 PDF 文档&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ ls&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;dcw-gmt-1.1.2.tar.gz  gmt-5.2.1-src.tar.gz  gshhg-gmt-2.3.5.tar.gz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;GMT_API.pdf  GMT_Docs.pdf  GMT_Manpages.pdf  GMT_Tutorial.pdf&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 解压三个压缩文件&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ tar -xvf gmt-5.2.1-src.tar.gz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ tar -xvf gshhg-gmt-2.3.5.tar.gz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ tar -xvf dcw-gmt-1.1.2.tar.gz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 将 gshhg 和 dcw 数据复制到 gmt 的 share 目录下&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ mv gshhg-gmt-2.3.5 gmt-5.2.1/share/gshhg&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ mv dcw-gmt-1.1.2 gmt-5.2.1/share/dcw-gmt&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 将 PDF 复制到 doc_release 目录下&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ mv *.pdf gmt-5.2.1/doc_release/pdf&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 切换到 gmt 源码目录下&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;cd&lt;/span&gt; gmt-5.2.1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 新建用户配置文件&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ gedit cmake/ConfigUser.cmake&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;向 &lt;code&gt;cmake/ConfigUser.cmake&lt;/code&gt; 文件中加入如下语句:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;set (CMAKE_INSTALL_PREFIX&amp;quot;/opt/GMT-5.2.1&amp;quot;)
+set (GMT_INSTALL_MODULE_LINKS FALSE)
+set (COPY_GSHHG TRUE)
+set (COPY_DCW TRUE)
+set (GMT_USE_THREADS TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_INSTALL_PREFIX&lt;/code&gt; 设置 GMT 的安装路径，可以修改为其他路径&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GMT_INSTALL_MODULE_LINKS&lt;/code&gt; 为 FALSE，表明不在 GMT 的 bin 目录下建立命令的软链接，也可设置为 TRUE&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;COPY_GSHHG&lt;/code&gt; 为 TRUE 会将 GSHHG 数据复制到 &lt;code&gt;GMT/share/coast&lt;/code&gt; 下&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;COPY_DCW&lt;/code&gt; 为 TRUE 会将 DCW 数据复制到 &lt;code&gt;GMT/share/dcw&lt;/code&gt; 下&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;GMT_USE_THREADS&lt;/code&gt; 表示是否开启某些模块的并行功能（CentOS 6.x 下，需设置为 &lt;code&gt;FALSE&lt;/code&gt;）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以下几点说明，仅供高阶用户阅读：&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;GMT 提供了用户配置的模板文件 &lt;code&gt;cmake/ConfigUserTemplate.cmake&lt;/code&gt;，其中包含了众多可配置的变量以及大量的注释说明。可以直接将该文件名复制为 &lt;code&gt;cmake/ConfigUser.cmake&lt;/code&gt;，然后在模板基础上做修改，以自定义 GMT 的安装。仅供高阶用户使用&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CMAKE_INSTALL_MODULE_LINKS&lt;/code&gt; 的作用是在 GMT 的 bin 目录下建立命令的软链接，以兼容 GMT4 语法，建议设置为 FALSE&lt;/li&gt;
+&lt;li&gt;配置文件中 &lt;code&gt;GSHHG_ROOT&lt;/code&gt; 和 &lt;code&gt;DCW_ROOT&lt;/code&gt; 可以用于指定数据所在路径。此处已将数据放在 GMT 的 share 目录下，使得在配置过程中 GMT 可以自动找到，因而不需要设置这两个变量&lt;/li&gt;
+&lt;li&gt;若系统中存在多个 GMT 的版本，按照上面的做法会存在多个 GSHHG 和 DCW 数据的副本，造成数据冗余。此时，可以将 gshhg 和 dcw 数据放在专门的目录中，比如 &lt;code&gt;/home/seisman/Datas/&lt;/code&gt; 目录下。然后有两种解决办法：
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;p&gt;完全按照上面的做法，在安装完成后，删除 &lt;code&gt;/opt/GMT-5.2.1/share&lt;/code&gt; 目录下的 &lt;code&gt;coast&lt;/code&gt; 和 &lt;code&gt;dcw&lt;/code&gt; 两个目录，并建立两个指向数据的真实数据的软链接:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ cd /opt/GMT-5.2.1/share
+$ sudo rm -r coast/
+$ sudo rm -r dcw/
+$ sudo ln -s /home/seisman/Datas/gshhg-gmt-2.3.5 gshhg
+$ sudo ln -s /home/seisman/Datas/dcw-gmt-1.1.2 dcw&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;设置配置文件如下:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;set (CMAKE_INSTALL_PREFIX&amp;quot;/opt/GMT-5.2.1&amp;quot;)
+set (GMT_INSTALL_MODULE_LINKS FALSE)
+set (GSHHG_ROOT&amp;quot;/home/seisman/Datas/gshhg-gmt-2.3.5&amp;quot;)
+set (COPY_GSHHG FALSE)
+set (DCW_ROOT&amp;quot;/home/seisman/Datas/dcw-gmt-1.1.1&amp;quot;)
+set (COPY_DCW FALSE)
+set (GMT_USE_THREADS TRUE)&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;继续执行如下命令以检查 GMT 的依赖关系:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ mkdir build
+$ cd build/
+$ cmake ..&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;cmake ..&lt;/code&gt; 会检查 GMT 对软件的依赖关系，我的检查结果如下:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*  Options:
+*  Found GSHHG database       : /home/seisman/Desktop/GMT/gmt-5.2.1/share/gshhg (2.3.5)
+*  Found DCW-GMT database     : /home/seisman/Desktop/GMT/gmt-5.2.1/share/dcw-gmt
+*  NetCDF library             : /usr/lib64/libnetcdf.so
+*  NetCDF include dir         : /usr/include
+*  GDAL library               : /usr/lib64/libgdal.so
+*  GDAL include dir           : /usr/include/gdal
+*  FFTW library               : /usr/lib64/libfftw3f.so
+*  FFTW include dir           : /usr/include
+*  Accelerate Framework       :
+*  Regex support              : PCRE (/usr/lib64/libpcre.so)
+*  ZLIB library               : /usr/lib64/libz.so
+*  ZLIB include dir           : /usr/include
+*  LAPACK library             : yes
+*  License restriction        : no
+*  Triangulation method       : Shewchuk
+*  OpenMP support             : enabled
+*  GLIB GTHREAD support       : enabled
+*  PTHREAD support            : enabled
+*  Build mode                 : shared
+*  Build GMT core             : always [libgmt.so]
+*  Build PSL library          : always [libpostscriptlight.so]
+*  Build GMT supplements      : yes [supplements.so]
+*  Build GMT Developer        : yes
+*  Build proto supplements    : none
+*
+*  Locations:
+*  Installing GMT in          : /opt/GMT-5.2.1
+*  GMT_DATADIR                : /opt/GMT-5.2.1/share
+*  GMT_DOCDIR                 : /opt/GMT-5.2.1/share/doc
+*  GMT_MANDIR                 : /opt/GMT-5.2.1/share/man
+-- Configuring done
+-- Generating done&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;正常情况下的检查结果应该与上面给出的类似。若出现问题，则需要检查之前的步骤是否有误，检查完毕后重新执行 &lt;code&gt;cmake ..&lt;/code&gt; ，直到出现类似的检查结果。检查完毕后，开始编译和安装:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ make -j
+$ sudo make -j install&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;自行编译文档&quot;&gt;自行编译文档&lt;/h2&gt;
+&lt;p&gt;如果系统中安装了 sphinx 和 LaTeX，则可以自行编译文档。一般情况下，不建议自行编译文档，官方提供的文档已经足够:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ make -j docs_man          # 生成 man 文档
+$ make -j docs_html         # 生成 HTML 文档
+$ make -j docs_pdf          # 生成 PDF 文档
+$ make -j docs_pdf_shrink   # 生成更小的 PDF 文档
+$ sudo -j make install&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;修改环境变量&quot;&gt;修改环境变量&lt;/h2&gt;
+&lt;p&gt;修改环境变量并使其生效：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;export GMT5HOME=/opt/GMT-5.2.1&#39;&lt;/span&gt; &amp;gt;&amp;gt; ~/.bashrc&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;export PATH=$&amp;#123;GMT5HOME&amp;#125;/bin:$PATH&#39;&lt;/span&gt;&amp;gt;&amp;gt; ~/.bashrc&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;export LD_LIBRARY_PATH=$&amp;#123;LD_LIBRARY_PATH&amp;#125;:$&amp;#123;GMT5HOME&amp;#125;/lib64&#39;&lt;/span&gt;&amp;gt;&amp;gt; ~/.bashrc&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;exec&lt;/span&gt; &lt;span class=&quot;variable&quot;&gt;$SHELL&lt;/span&gt; &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;说明&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一个命令向 &lt;code&gt;~/.bashrc&lt;/code&gt; 中添加环境变量 &lt;code&gt;GMT5HOME&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;第二个命令修改 &lt;code&gt;~/.bashrc&lt;/code&gt; ，将 GMT5 的 bin 目录加入到 &lt;code&gt;PATH&lt;/code&gt; 中&lt;/li&gt;
+&lt;li&gt;第三个命令将 GMT5 的 lib 目录加入到动态链接库路径中，若为 32 位系统，则为 &lt;code&gt;lib&lt;/code&gt; ；64 位系统则为 &lt;code&gt;lib64&lt;/code&gt; ；&lt;/li&gt;
+&lt;li&gt;第四个命令是重新载入 bash，相当于 &lt;code&gt;source ~/.bashrc&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;某些发行版下可能需要写入到 &lt;code&gt;~/.bash_profile&lt;/code&gt; 而不是 &lt;code&gt;~/.bashrc&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;某些发行版下可能需要退出再重新登陆，或关机重启&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;测试是否安装成功&quot;&gt;测试是否安装成功&lt;/h2&gt;
+&lt;p&gt;在终端键入 &lt;code&gt;gmt&lt;/code&gt; ，若出现如下输出，则安装成功:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gmt --version
+5.2.1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Ubuntu 14.04/15.04 以及部分 Debian 用户，可能会出现如下信息:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;$ gmt
+Sub-commands for gmt:
+install    install more modules
+ERROR: Please specify valid params for &amp;#39;gmt&amp;#39;.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;出现该错误的原因是这几个发行版中的 &lt;code&gt;libgenome-perl&lt;/code&gt; 包中提供了同名的命令 &lt;code&gt;/usr/bin/gmt&lt;/code&gt; ，把该软件包卸载即可。&lt;/p&gt;
+&lt;h2 id=&quot;参考来源&quot;&gt;参考来源&lt;/h2&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;&lt;a href=&quot;http://gmtrac.soest.hawaii.edu/projects/gmt/wiki/BuildingGMT&quot; class=&quot;uri&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://gmtrac.soest.hawaii.edu/projects/gmt/wiki/BuildingGMT&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;/install-gmt4-under-linux.html&quot;&gt;GMT4.5.14 在 Linux 下的安装&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;/install-gmt5-under-linux.html&quot;&gt;GMT5.1.2 在 Linux 下的安装&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;修订历史&quot;&gt;修订历史&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;2015-11-13：根据 5.1.2 的安装步骤更新至 5.2.1；&lt;/li&gt;
+&lt;li&gt;2015-12-23： &lt;code&gt;GMT_USE_THREADS&lt;/code&gt; 功能需要安装 glib2 库文件；&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;注意：&lt;/strong&gt; 为 Ubuntu 和 CentOS 用户写了一个快速安装脚本，见 &lt;a href=&quot;https://github.com/gmt-china/gmt-easy-installer&quot;&gt;gmt-easy-installer&lt;/a&gt;。 有兴趣的可以试着安装，也欢迎测试各种不同的平台。&lt;/p&gt;
+&lt;p&gt;本文介绍如何在 Linux 下安装 GMT 5.2.x。&lt;/p&gt;
+&lt;p&gt;GMT 5.2.x 系列的安装与 GMT 5.1.x 系列的安装稍有不同，故而在前文基础上单独写一篇。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="GMT" scheme="http://seisman.info/categories/GMT/"/>
+    
+    
+      <category term="安装" scheme="http://seisman.info/tags/%E5%AE%89%E8%A3%85/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安装 SOD</title>
+    <link href="http://seisman.info/install-sod.html"/>
+    <id>http://seisman.info/install-sod.html</id>
+    <published>2015-11-04T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;主页： &lt;a href=&quot;http://www.seis.sc.edu/sod/index.html&quot; class=&quot;uri&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.seis.sc.edu/sod/index.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;SOD 是一个 Java 写的命令行程序，用于下载地震相关数据。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ wget http://www.seis.sc.edu/downloads/sod/3.2.6/sod-3.2.6.tgz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ tar -xvf sod-3.2.6.tgz&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ sudo mv sod-3.2.6 /usr/&lt;span class=&quot;built_in&quot;&gt;local&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;export PATH=$&amp;#123;PATH&amp;#125;:/usr/local/sod-3.2.6/bin&#39;&lt;/span&gt;&amp;gt;&amp;gt; ~/.bashrc&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;$ &lt;span class=&quot;built_in&quot;&gt;exec&lt;/span&gt; &lt;span class=&quot;variable&quot;&gt;$SHELL&lt;/span&gt; &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;主页： &lt;a href=&quot;http://www.seis.sc.edu/sod/index.html&quot; class=&quot;uri&quot;&gt;http://www.seis.sc.edu/sod/index.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;SOD 是一个 Java 写的命令行程序，用于下载地震相关数据。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="Java" scheme="http://seisman.info/tags/Java/"/>
+    
+      <category term="安装" scheme="http://seisman.info/tags/%E5%AE%89%E8%A3%85/"/>
+    
+      <category term="数据申请" scheme="http://seisman.info/tags/%E6%95%B0%E6%8D%AE%E7%94%B3%E8%AF%B7/"/>
+    
+      <category term="软件" scheme="http://seisman.info/tags/%E8%BD%AF%E4%BB%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>地震数据申请</title>
+    <link href="http://seisman.info/seismic-waveform-data-request.html"/>
+    <id>http://seisman.info/seismic-waveform-data-request.html</id>
+    <published>2015-10-26T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;申请地震波形数据，按照具体的需求，大致可以分为两大类，即事件波形数据和连续波形数据。&lt;/p&gt;
+&lt;p&gt;这两者的主要区别在于如何确定要申请的数据时间窗，前者需要震相到时信息，后者则不需要。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;事件波形数据&quot;&gt;事件波形数据&lt;/h2&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;筛选事件
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;获取地震目录，比如 GCMT、USGS PDE、ISC&lt;/li&gt;
+&lt;li&gt;从地震目录中获取某个特定事件的信息&lt;/li&gt;
+&lt;li&gt;或根据条件筛选出需要的事件信息，筛选条件包括：
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;经纬度范围&lt;/li&gt;
+&lt;li&gt;深度范围&lt;/li&gt;
+&lt;li&gt;时间范围&lt;/li&gt;
+&lt;li&gt;震级范围&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;筛选台站，筛选条件包括：
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;台站位置&lt;/li&gt;
+&lt;li&gt;仪器类型（宽频带、长周期、短周期等）&lt;/li&gt;
+&lt;li&gt;分量类型（三分量或只要 Z 分量）&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;波形起始和结束时间&lt;/p&gt;
+&lt;p&gt;需要根据发震时刻和震中距信息，计算理论到时，由此确定要申请的数据时间窗。&lt;/p&gt;
+&lt;p&gt;波形起始时间可以取发震时刻或相对于某震相的时刻（比如 P 波前 5 分钟）等等。波形结束时间可以通过数据长度指定，也可以直接指定相对于某震相到时的时刻（比如 S 波之后 10 分钟）。&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;选择数据格式，比如 SAC 或 SEED&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;事件波形数据又可以进一步分成两类：以事件为中心的事件波形数据和以台站为中心的事件波形数据。&lt;/p&gt;
+&lt;p&gt;像地震定位、地震震源机制等问题，一般都需要以事件为中心的事件波形数据。此类情况下，通常先筛选地震事件再筛选台站。在筛选台站时，可以额外加上震中距范围和方位角范围的限制。&lt;/p&gt;
+&lt;p&gt;像接收函数等问题，一般需要以台站为中心的事件波形数据。此类情况下，通常先筛选台站再筛选事件。在筛选事件时，可以额外加上震中距范围和反方位角范围的限制。&lt;/p&gt;
+&lt;h2 id=&quot;连续波形数据&quot;&gt;连续波形数据&lt;/h2&gt;
+&lt;p&gt;连续波形数据中没有地震事件的信息，因而都是以台站为中心的，比如背景噪声相关。&lt;/p&gt;
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;选择台站，筛选条件：
+&lt;ol style=&quot;list-style-type: decimal&quot;&gt;
+&lt;li&gt;台站位置&lt;/li&gt;
+&lt;li&gt;仪器类型（宽频带、长周期、短周期等）&lt;/li&gt;
+&lt;li&gt;分量类型（三分量或只要 Z 分量）&lt;/li&gt;
+&lt;/ol&gt;&lt;/li&gt;
+&lt;li&gt;确定时间范围：选择合适的时间范围&lt;/li&gt;
+&lt;li&gt;选择数据格式，比如 SAC 或 SEED&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;根据地震事件的信息以及震中距信息，计算震相的理论走时，再根据事件发震时刻得到震相的绝对时刻，进而确定要申请数据的绝对时间范围。本质上，事件波形数据是连续波形数据的一个子集。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;申请地震波形数据，按照具体的需求，大致可以分为两大类，即事件波形数据和连续波形数据。&lt;/p&gt;
+&lt;p&gt;这两者的主要区别在于如何确定要申请的数据时间窗，前者需要震相到时信息，后者则不需要。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学基础" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E5%9F%BA%E7%A1%80/"/>
+    
+    
+      <category term="数据申请" scheme="http://seisman.info/tags/%E6%95%B0%E6%8D%AE%E7%94%B3%E8%AF%B7/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>rdseed 用法笔记</title>
+    <link href="http://seisman.info/rdseed-notes.html"/>
+    <id>http://seisman.info/rdseed-notes.html</id>
+    <published>2015-10-12T16:00:00.000Z</published>
+    <updated>2016-05-31T05:13:57.605Z</updated>
+    
+    <content type="html">&lt;p&gt;&lt;code&gt;rdseed&lt;/code&gt; 是 IRIS 提供的工具，用于读取 SEED 格式，从中提取出波形信息，并将波形数据保存为 SAC、AH、CSS、SEGY 或 ASCII 等多种数据格式。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;语法说明&quot;&gt;语法说明&lt;/h2&gt;
+&lt;p&gt;安装好 &lt;code&gt;rdseed&lt;/code&gt; 之后在终端键入 &lt;code&gt;rdseed -h&lt;/code&gt; 或 &lt;code&gt;rdseed -u&lt;/code&gt; 即可查看命令的选项及语法说明。 &lt;code&gt;rdseed&lt;/code&gt; 命令的选项众多，下面按照选项的重要性从高到低排序。&lt;/p&gt;
+&lt;p&gt;比较重要且常用的选项：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-f file&lt;/code&gt; ：输入的 SEED 文件名。 &lt;code&gt;rdseed&lt;/code&gt; 一次只能处理一个 SEED 文件。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-d&lt;/code&gt; ：从 SEED 数据中提取波形数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-o n&lt;/code&gt; ：输出波形数据的格式，默认为 SAC 格式。&lt;code&gt;n&lt;/code&gt; 可以取 1–9，分别表示 SAC（1）、 AH（2）、CSS（3）、miniSEED（4）、SEED（5）、SAC ASCII（6）、SEGY（7）、 Simple ASCII(SLIST)（8）和 Simple ASCII(TSPAIR)（9）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-R&lt;/code&gt; ：输出 RESP 格式的仪器响应文件&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-p&lt;/code&gt; ：输出 SAC PZ 格式的仪器响应文件&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-E&lt;/code&gt; ：输出的波形数据的文件名中包含结束时间&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-q&lt;/code&gt; ：指定输出目录，该目录必须已经存在。默认输出到当前目录。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-Q&lt;/code&gt; ：选择波形数据的质量，可以取
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;E&lt;/code&gt; ：全部质量的波形数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;D&lt;/code&gt; ：不确定状态的数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;M&lt;/code&gt; ：已合并的数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;R&lt;/code&gt; ：原始波形数据&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Q&lt;/code&gt; ：经过质量控制的数据&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-b n&lt;/code&gt; ：输出的波形数据的最大数据点数，默认值为 &lt;code&gt;20000000&lt;/code&gt;。若波形数据的的数据 点数超过该值，则会给出警告并把数据分割成多段。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-g file&lt;/code&gt;：为 SEED 或 miniSEED 数据单独指定响应文件。响应文件可以是 SEED 格式也可以是 dateless SEED 格式，也可以通过设置环境变量 &lt;code&gt;ALT_RESPONSE_FILE&lt;/code&gt; 指定响应文件，这样 做的好处在于可以多个 SEED 文件共用一套响应文件。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-h&lt;/code&gt; 或 &lt;code&gt;-u&lt;/code&gt; ：显示命令的用法&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-z n&lt;/code&gt; ：检查并校正数据极性，在下面会单独介绍&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;不常用的选项：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-a&lt;/code&gt; ：提取缩略词词典&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-c&lt;/code&gt; ：提取文件内容的目录信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-C STN|CHN&lt;/code&gt; ： 提取台站或分量的注释信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-l&lt;/code&gt; ：列出每个 block 的内容&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-s&lt;/code&gt; ：输出全部台站的 RESP 格式仪器响应文件到终端&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-S&lt;/code&gt; ：提取台站的汇总信息到文件 &lt;code&gt;rdseed.stations&lt;/code&gt;，内容包括台站名、台网名、经纬度、 海拔、分量、台站开始时间和结束时间&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-t&lt;/code&gt;：输出波形相关信息到终端，包括台站名、分量名、台网名、位置码、质量控制符、 波形开始时间和结束时间、采样率、数据点数&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-v n&lt;/code&gt; ：选择卷号，默认值为 1。对于 SEED 文件 &lt;code&gt;n&lt;/code&gt; 只能取 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-k&lt;/code&gt; ：跳过数据点数为 0 的记录&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-e&lt;/code&gt; ：提取事件 / 台站数据到文件 &lt;code&gt;rdseed.events&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-i&lt;/code&gt; ：忽略位置码&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-x file&lt;/code&gt; ：使用 &lt;code&gt;JWEED&lt;/code&gt; 生成的 summary 文件，根据 summary 文件提取指定台站、分量和时间窗内的波形数据&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;正负极性及其校正&quot;&gt;正负极性及其校正&lt;/h2&gt;
+&lt;p&gt;地震仪的每个分量都有一个传感器，每个传感器都有一个敏感轴，仪器记录的就是敏感轴方向的运动物理量。每个敏感轴都有一个正方向，若地面运动与敏感轴的正方向一致，则输出为正值，若地面运动与敏感轴的正方向相反，则输出为负值。&lt;/p&gt;
+&lt;p&gt;SAC 头段中的 &lt;code&gt;cmpaz&lt;/code&gt; 和 &lt;code&gt;cmpinc&lt;/code&gt; 是用于描述仪器敏感轴正方向的最通用也是最准确的方法。 &lt;code&gt;cmpaz&lt;/code&gt; 是敏感轴的方位角，定义为从 N 向开始顺时针旋转的角度， &lt;code&gt;cmpinc&lt;/code&gt; 是敏感轴的入射角， 定义为相对于垂直向上方向旋转的角度。&lt;/p&gt;
+&lt;p&gt;几个比较特殊的方向是：垂直方向、正东西向、正南北向，在 SAC 中方位码分别为 &lt;code&gt;Z&lt;/code&gt; 、 &lt;code&gt;E&lt;/code&gt; 和 &lt;code&gt;N&lt;/code&gt; 。下表列出了这六个方向所对应的 &lt;code&gt;cmpaz&lt;/code&gt; 和 &lt;code&gt;cmpinc&lt;/code&gt; 。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&quot;header&quot;&gt;
+&lt;th align=&quot;left&quot;&gt;方向&lt;/th&gt;
+&lt;th align=&quot;left&quot;&gt;&lt;code&gt;cmpaz&lt;/code&gt;&lt;/th&gt;
+&lt;th align=&quot;left&quot;&gt;&lt;code&gt;cmpinc&lt;/code&gt;&lt;/th&gt;
+&lt;th align=&quot;left&quot;&gt;方位码&lt;/th&gt;
+&lt;th align=&quot;left&quot;&gt;极性&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&quot;odd&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;垂直向上&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 0&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 0&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; Z&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 正&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;even&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;垂直向下&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 0&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 180&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; Z&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 负&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;odd&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;正北&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 0&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 90&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; N&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 正&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;even&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;正南&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 180&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 90&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; N&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 负&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;odd&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;正东&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 90&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 90&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; E&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 正&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&quot;even&quot;&gt;
+&lt;td align=&quot;left&quot;&gt;正西&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 270&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 90&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; E&lt;/td&gt;
+&lt;td align=&quot;left&quot;&gt;&amp;gt; 负&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;对于一个方位码为 &lt;code&gt;Z&lt;/code&gt; 的数据，其分量方向有两种可能性：垂直向上和垂直向下。根据 SAC 中 NEU 坐标系的 定义，垂直向上方向为正极性，垂直向下方位为负极性。同理，正东和正北是正极性，正西和正南为负极性。&lt;/p&gt;
+&lt;p&gt;由上表可知，通过检查分量的 &lt;code&gt;cmpaz&lt;/code&gt; 和 &lt;code&gt;cmpinc&lt;/code&gt; 即可判断是是正极性还是负极性。某些情况下， 分量角度是正常的，但仪器响应中的总增益是负值，也可用于表示负极性，但这种情况很少见到，目前缺乏数据做测试，因而暂且先不考虑增益为负的这种情况。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;rdseed&lt;/code&gt; 中 &lt;code&gt;-z n&lt;/code&gt; 选项可以用于检测并校正负极性。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;n=0&lt;/code&gt; 表示不做极性检测；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;n=1&lt;/code&gt; 表示只检查 &lt;code&gt;cmpaz&lt;/code&gt; 或 &lt;code&gt;cmpinc&lt;/code&gt;；若是负极性，则反转所有数据点的正负号并修改 &lt;code&gt;cmpaz&lt;/code&gt; 或 &lt;code&gt;cmpinc&lt;/code&gt; 的值；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;n=2&lt;/code&gt; 表示只检查总增益的正负值；若为负值即表示负极性，则反转所有数据的正负号但不修改 &lt;code&gt;cmpaz&lt;/code&gt; 或 &lt;code&gt;cmpinc&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;n=3&lt;/code&gt; 表示同时检查 &lt;code&gt;cmpaz&lt;/code&gt; 或 &lt;code&gt;cmpinc&lt;/code&gt; 以及总增益的正负值，仅当其中之一符合负极性的要求时才做校正；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;需要注意，正负极性的概念仅适用于 6 个标准分量方向。对于垂向分量而言，通常需要校正极性，否则在 查看 Z 分量的波形数据时，可能会出现某个台站的波形极性不对的状况；对于水平向分量而言，由于通常会 旋转到大圆路径方向，所以不做极性校正，也不会有问题。总之，建议使用 &lt;code&gt;-z 1&lt;/code&gt; 选项做极性校正。&lt;/p&gt;
+&lt;h2 id=&quot;用法示例&quot;&gt;用法示例&lt;/h2&gt;
+&lt;p&gt;从 SEED 文件中提取波形数据和 RESP 仪器响应文件：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;rdseed -R -d -f infile.seed&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其中，选项 &lt;code&gt;-R -d -f&lt;/code&gt; 可以合写成 &lt;code&gt;-Rdf&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;从 SEED 文件中提取波形数据和 SAC PZ 仪器响应文件：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;rdseed -pdf infile.seed&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;从 miniSEED 文件中提取波形数据，并指定 dataless SEED 文件作为仪器响应文件：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;rdseed -Rdf infile.miniseed -g infile.dataless&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&quot;警告与错误&quot;&gt;警告与错误&lt;/h2&gt;
+&lt;p&gt;使用 &lt;code&gt;rdseed&lt;/code&gt; 的过程中可能会遇到一些警告和错误。这些警告和错误会显示在终端，也会记录到日志文件 &lt;code&gt;rdseed.err_log&lt;/code&gt; 中。&lt;/p&gt;
+&lt;h3 id=&quot;警告-1&quot;&gt;警告 1&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;Warning... Azimuth and Dip out of Range on AAK,BH1
+Defaulting to subchannel identifier (for multiplexed data only)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;若分量的 &lt;code&gt;cmpaz&lt;/code&gt; 和 &lt;code&gt;cmpinc&lt;/code&gt; 所指定的传感轴方向与垂直方向的偏差很小，比如偏差在两度以内， 则将该分量的方位码设置为 &lt;code&gt;Z&lt;/code&gt; 。对于近正东西和近南北方向，设置分量方位码为 &lt;code&gt;E&lt;/code&gt; 和 &lt;code&gt;N&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;若分量的敏感轴方向不与垂直向、正东西向、正南北向相近，则会出现此警告，此时可能会设置分量的范围码为 &lt;code&gt;1&lt;/code&gt; 或其他的字符。因而该警告可忽略。&lt;/p&gt;
+&lt;h3 id=&quot;警告-2&quot;&gt;警告 2&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;Warning... Azimuth/Dip Reversal found FURI.BHZ, Data inversion was not selected&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;该警告表示，根据分量的 &lt;code&gt;cmpaz&lt;/code&gt; 和 &lt;code&gt;cmpinc&lt;/code&gt; 检测到当前分量是负极性，但不对数据作极性校正。这种情况下使用 &lt;code&gt;-z 1&lt;/code&gt; 选项，会修改数据的正负号，并将台站角度修改为正极性方向。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;code&gt;rdseed&lt;/code&gt; 是 IRIS 提供的工具，用于读取 SEED 格式，从中提取出波形信息，并将波形数据保存为 SAC、AH、CSS、SEGY 或 ASCII 等多种数据格式。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="地震学软件" scheme="http://seisman.info/categories/%E5%9C%B0%E9%9C%87%E5%AD%A6%E8%BD%AF%E4%BB%B6/"/>
+    
+    
+      <category term="软件" scheme="http://seisman.info/tags/%E8%BD%AF%E4%BB%B6/"/>
+    
+      <category term="SEED" scheme="http://seisman.info/tags/SEED/"/>
+    
+      <category term="比例" scheme="http://seisman.info/tags/%E6%AF%94%E4%BE%8B/"/>
+    
+  </entry>
+  
+</feed>
